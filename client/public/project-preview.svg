@@ -1,0 +1,63 @@
+<svg width="1280" height="760" viewBox="0 0 1280 760" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">AHT Text Summarizer project preview</title>
+  <desc id="desc">A dashboard-style preview of the React, LangChain, Gemini, RAG, Node.js, and MongoDB text summarizer application.</desc>
+  <rect width="1280" height="760" fill="#F7F7F3"/>
+  <rect x="40" y="34" width="1200" height="692" rx="18" fill="#FFFFFF" stroke="#D6D3D1"/>
+  <rect x="40" y="34" width="1200" height="72" rx="18" fill="#FFFFFF"/>
+  <rect x="40.5" y="105.5" width="1199" height="1" fill="#E7E5E4"/>
+
+  <rect x="72" y="58" width="32" height="32" rx="8" fill="#1C1917"/>
+  <path d="M88 64L90.8 72.2L99 75L90.8 77.8L88 86L85.2 77.8L77 75L85.2 72.2L88 64Z" fill="#F7F7F3"/>
+  <text x="116" y="80" fill="#1C1917" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="21" font-weight="800">AHT Summarizer</text>
+
+  <text x="505" y="80" fill="#78716C" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Summarize</text>
+  <text x="618" y="80" fill="#78716C" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">RAG Q&amp;A</text>
+  <text x="724" y="80" fill="#78716C" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">History</text>
+
+  <rect x="1012" y="54" width="82" height="40" rx="20" fill="#F5F5F4" stroke="#E7E5E4"/>
+  <circle cx="1033" cy="74" r="7" fill="#292524"/>
+  <text x="1048" y="79" fill="#292524" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="800">Dark</text>
+  <rect x="1106" y="54" width="102" height="40" rx="20" fill="#EEF7F2" stroke="#99F6E4"/>
+  <circle cx="1126" cy="74" r="7" fill="#0F766E"/>
+  <text x="1141" y="79" fill="#134E4A" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="800">Storage online</text>
+
+  <rect x="72" y="137" width="704" height="500" rx="10" fill="#FFFFFF" stroke="#E7E5E4"/>
+  <text x="104" y="176" fill="#0F766E" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="900">LANGCHAIN + RAG + MONGODB</text>
+  <text x="104" y="220" fill="#1C1917" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="42" font-weight="800">Text Summarizer</text>
+  <rect x="562" y="164" width="92" height="34" rx="17" fill="#EEF7F2" stroke="#CCFBF1"/>
+  <text x="588" y="186" fill="#134E4A" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="800">310 words</text>
+  <rect x="662" y="164" width="82" height="34" rx="17" fill="#EEF7F2" stroke="#CCFBF1"/>
+  <text x="687" y="186" fill="#134E4A" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="800">1,842 chars</text>
+  <rect x="104" y="246" width="640" height="48" rx="8" fill="#FAFAF9" stroke="#D6D3D1"/>
+  <text x="124" y="276" fill="#78716C" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="15">Quarterly research notes</text>
+  <rect x="104" y="324" width="640" height="210" rx="8" fill="#FAFAF9" stroke="#D6D3D1"/>
+  <rect x="124" y="348" width="452" height="12" rx="6" fill="#D6D3D1"/>
+  <rect x="124" y="376" width="570" height="12" rx="6" fill="#E7E5E4"/>
+  <rect x="124" y="404" width="518" height="12" rx="6" fill="#E7E5E4"/>
+  <rect x="124" y="432" width="590" height="12" rx="6" fill="#E7E5E4"/>
+  <rect x="124" y="460" width="408" height="12" rx="6" fill="#E7E5E4"/>
+  <rect x="104" y="558" width="640" height="52" rx="8" fill="#134E4A"/>
+  <text x="347" y="591" fill="#FFFFFF" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="17" font-weight="850">Summarize and store</text>
+
+  <rect x="808" y="137" width="400" height="220" rx="10" fill="#FFFFFF" stroke="#E7E5E4"/>
+  <text x="840" y="178" fill="#1C1917" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="19" font-weight="900">Summary</text>
+  <rect x="840" y="204" width="336" height="118" rx="8" fill="#FAFAF9" stroke="#E7E5E4"/>
+  <rect x="860" y="226" width="248" height="10" rx="5" fill="#99F6E4"/>
+  <rect x="860" y="252" width="278" height="10" rx="5" fill="#D6D3D1"/>
+  <rect x="860" y="278" width="218" height="10" rx="5" fill="#D6D3D1"/>
+
+  <rect x="808" y="381" width="400" height="190" rx="10" fill="#FFFFFF" stroke="#E7E5E4"/>
+  <text x="840" y="422" fill="#1C1917" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="19" font-weight="900">Ask With RAG</text>
+  <rect x="840" y="448" width="246" height="44" rx="8" fill="#FAFAF9" stroke="#D6D3D1"/>
+  <text x="858" y="476" fill="#78716C" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14">Ask about this document</text>
+  <rect x="1096" y="448" width="80" height="44" rx="8" fill="#292524"/>
+  <text x="1125" y="476" fill="#FFFFFF" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="850">Ask</text>
+  <rect x="840" y="514" width="336" height="26" rx="6" fill="#F5F5F4"/>
+  <text x="858" y="532" fill="#57534E" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12">Chunk 2 | score 0.8421</text>
+
+  <rect x="72" y="662" width="1136" height="42" rx="10" fill="#FAFAF9" stroke="#E7E5E4"/>
+  <text x="104" y="689" fill="#1C1917" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16" font-weight="900">Stored summaries</text>
+  <rect x="268" y="674" width="154" height="16" rx="8" fill="#CCFBF1"/>
+  <rect x="442" y="674" width="128" height="16" rx="8" fill="#E7E5E4"/>
+  <rect x="590" y="674" width="176" height="16" rx="8" fill="#E7E5E4"/>
+</svg>
