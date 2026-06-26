@@ -1,194 +1,202 @@
-# AHT Text Summarizer
+# ✨ AHT Text Summarizer & RAG Dashboard
 
-![AHT Text Summarizer Preview](client/public/project-preview.svg)
-
-AHT Text Summarizer is a full-stack AI application that summarizes long text, stores the source material in MongoDB, and lets users ask follow-up questions with a RAG workflow. The project uses React for the frontend, Node.js and Express for the backend, LangChain for AI orchestration, Gemini for generation and embeddings, and MongoDB for persistent document storage.
-
-## What We Built
-
-- A clean React/Vite frontend for pasting text, selecting summary style, viewing generated summaries, asking RAG questions, and browsing stored summaries.
-- A Node.js/Express backend with REST API routes for summarization, follow-up Q&A, document history, and health checks.
-- Gemini model integration through LangChain for both summary generation and vector embeddings.
-- RAG support by splitting text into chunks, embedding each chunk, storing embeddings in MongoDB, and retrieving the most relevant chunks for follow-up questions.
-- MongoDB persistence for original text, generated summaries, chunk metadata, embeddings, and created dates.
-- A meaningful navbar with working section links, light/dark theme toggle, and live API/storage status.
-- A cleaner professional folder structure with frontend and backend dependencies separated.
-
-## Preview
-
-The image above shows the main workflow:
-
-1. Paste source text into the summarizer panel.
-2. Choose a summary style: detailed, brief, or bullets.
-3. Generate and store the summary.
-4. Ask follow-up questions using RAG.
-5. Reopen previous summaries from stored history.
-
-## Tech Stack
-
-| Layer | Technology |
-| --- | --- |
-| Frontend | React, Vite, Tailwind CSS, Lucide Icons, Framer Motion |
-| Backend | Node.js, Express |
-| AI Orchestration | LangChain |
-| LLM | Gemini via `@langchain/google-genai` |
-| Embeddings | Gemini embedding model |
-| Database | MongoDB |
-| Validation | Zod |
-
-## Architecture
-
-```mermaid
-flowchart LR
-  User["User"] --> React["React Frontend"]
-  React --> API["Express API"]
-  API --> Splitter["LangChain Text Splitter"]
-  Splitter --> GeminiEmbed["Gemini Embeddings"]
-  API --> GeminiChat["Gemini Chat Model"]
-  GeminiEmbed --> Mongo["MongoDB Documents + Chunks"]
-  Mongo --> Retriever["Cosine Similarity Retriever"]
-  Retriever --> GeminiChat
-  GeminiChat --> API
-  API --> React
+```text
+       ___   _  _  _____    ___                                   _
+      / _ \ | || ||_   _|  / __| _  _  _ __   _ __   __ _  _ _  _(_) __ ___  _ _
+     / ___ \| __ |  | |    \__ \| || || '  \ | '  \ / _` || '_|| |_ / _` \ \/ /
+    /_/   \_\_||_|  |_|    |___/ \_,_||_|_|_||_|_|_|\__,_||_|  |_|_|\__,_//_/\_\
 ```
 
-## How The App Works
+> **A premium, full-stack AI orchestrator** that generates grounded summaries, manages secure vector chunks in MongoDB, and runs a context-rich Retrieval-Augmented Generation (RAG) chat. Powered by LangChain, Gemini, Node.js, and React.
 
-When a user submits text, the backend validates the request and splits the text into smaller overlapping chunks. Each chunk is embedded with Gemini embeddings and saved in MongoDB with the source document. The backend then sends the selected context and source text to Gemini through LangChain to generate a grounded summary.
+---
 
-For RAG Q&A, the user asks a question about a stored document. The server embeds the question, compares it with saved chunk embeddings using cosine similarity, retrieves the most relevant chunks, and sends only that context to Gemini for an answer.
+## 🎨 Soulful UI Design
 
-## Folder Structure
+The user interface has been crafted with a modern, glassmorphic theme to deliver an engaging, premium workspace. 
+
+### 💻 Desktop View Architecture
+* **Suspended Floating Navbar**: A centered, glass-frosted navigation pill that slides gently down from the top on page load. It features smooth **Framer Motion spring sweeps** (`nav-hover-pill`) that glide behind links on hover, custom profile badges, and a theme switcher.
+* **Balanced Split-Screen Workspace**:
+  - **Left Column**: The **Summarizer Workspace** contains fields for custom titles, source text areas, custom focus queries, and summary style selectors.
+  - **Right Column**: Displays the generated **Summary Output** and the **RAG Ask Panel** side-by-side. 
+* **Sizing Constraints**: Heavy data inputs are kept structurally tidy. Paste areas and result boxes are capped (`max-height: 500px`) and scroll internally with custom-designed emerald scrollbar thumbs.
+* **Stored Summaries Drawer**: Placed in a grid block at the bottom of the workspace for easy retrieval and document deletion.
+
+### 📱 Mobile View Adaptations
+* **Optimized Card Spacing**: Panels collapse their padding from `32px` on desktop down to `20px` on mobile, reclaiming critical screen estate.
+* **Side-by-Side Mobile Inputs**: The **Optional focus** text field and **Summary style** select dropdown are placed in a side-by-side grid (`grid-cols-[1fr_120px]`). This prevents the dropdown from stretching and keeps the form vertically compact.
+* **Responsive History Stacking**: Stored summary items automatically stack into a single column on small screens, adapting smoothly to touch interfaces.
+* **Drawer Navigation**: A full-screen glassmorphic mobile drawer handles responsive routing, theme shifting, and profile logout options.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technologies | Description |
+|---|---|---|
+| **Frontend** | React 19, Vite 8, Tailwind CSS v4, Framer Motion, Lucide Icons | Client-side reactive elements & micro-animations |
+| **Backend** | Node.js, Express v5, JWT, Multer, Mammoth, Zod | Layered routing, schema validation, and doc parsing |
+| **AI Orchestration**| LangChain, `@langchain/google-genai` | Splitting, embedding pipelines, and model stream wiring |
+| **Vector Database** | MongoDB Atlas / Local MongoDB Client | Persisting document logs, chunks, and embeddings |
+| **AI Models** | Gemini 2.5 Flash, Gemini-Embedding-001 | Generative summaries and vector embeddings |
+
+---
+
+## 📐 Application Architecture
+
+```mermaid
+flowchart TD
+  User["👤 User Interface (React)"]
+  
+  subgraph Client [Vite Frontend]
+    User --> Navbar["📂 Floating Navbar"]
+    User --> Editor["📝 Source Editor"]
+    User --> Chat["💬 RAG Chat Area"]
+  end
+
+  subgraph API [Express Gateway]
+    Navbar --> AuthGuard["🔐 JWT Auth Middleware"]
+    Editor --> UploadGuard["📁 Multer Memory Storage"]
+    UploadGuard --> Controller["🎮 Document Controller"]
+    Chat --> RAGController["🎮 RAG Controller"]
+  end
+
+  subgraph LangChainOrchestrator [AI & Retrieval Pipeline]
+    Controller --> Splitter["✂️ Text Splitter (Overlapping Chunks)"]
+    Splitter --> Embedder["🧬 Gemini Embedding Gen"]
+    RAGController --> Similarity["🧮 Cosine Similarity / Atlas Search"]
+  end
+
+  subgraph Database [Storage Layer]
+    Embedder --> MongoDocs["🗄️ MongoDB Documents"]
+    Embedder --> MongoChunks["🗄️ MongoDB Chunks & Vectors"]
+    Similarity <-- Fetch["🔍 Vector Retrieval"]
+  end
+
+  RAGController --> LLM["🤖 Gemini 2.5 Flash Stream"]
+  Controller --> LLM
+  LLM --> Client
+```
+
+---
+
+## ⚡ Key Features
+
+* **ESM PDF Parser Fix**: Configured the backend with native ES Module imports using the newer `PDFParse` class and setting `disableWorker: true`. This prevents Windows-based event loop native thread assertion crashes (`win/async.c`) and runs parsing synchronously on the main thread.
+* **Docx & Text Support**: Parses Microsoft Word documents using `Mammoth` and `.txt` files directly.
+* **Hybrid Vector Retrieval**: Uses MongoDB Atlas Vector Search index pipeline for similarity lookups, falling back automatically to local in-memory cosine-similarity algorithms on standard local MongoDB installations.
+* **Token Authentication**: Secure JWT endpoints guard all summarization, chat, and document deletion routes.
+* **Event Streams (SSE)**: Summaries and RAG chat replies stream token-by-token using Server-Sent Events, ensuring zero lag for long responses.
+
+---
+
+## 📂 Project Structure
 
 ```text
 AHT/
-  client/
-    public/
-      project-preview.svg
-    src/
-      components/
-      App.jsx
-      App.css
-    package.json
-  server/
-    src/
-      db.js
-      index.js
-      listModels.js
-      summarizer.js
-      vector.js
-    .env
-    .env.example
-    package.json
-  README.md
-  .gitignore
+├── client/                      # Vite Frontend Application
+│   ├── src/
+│   │   ├── components/          # Modular component views
+│   │   │   ├── Navbar.jsx       # Floating spring-hover navbar
+│   │   │   ├── SummarizerForm.jsx # Input fields & metallic file upload button
+│   │   │   ├── SummaryResultPanel.jsx # Frosted summary Markdown output
+│   │   │   ├── RagChatPanel.jsx # RAG chatbot bubble terminal
+│   │   │   └── HistoryPanel.jsx # Responsive saved summary grid list
+│   │   ├── pages/
+│   │   │   ├── AuthPage.jsx     # Glassy auth portal (Login/Register)
+│   │   │   └── Dashboard.jsx    # Central dashboard hub grid layout
+│   │   ├── App.jsx              # Main React container logic
+│   │   ├── App.css              # Glassmorphic tokens, animations & scrollbars
+│   │   └── main.jsx
+│   ├── package.json
+│   └── vite.config.js           # Set to proxy /api requests to port 5000
+│
+├── server/                      # Layered Express API
+│   ├── src/
+│   │   ├── config/              # Centralized setups
+│   │   │   ├── db.js            # MongoDB client & vector index verification
+│   │   │   └── env.js           # Env validator and exports
+│   │   ├── middleware/          # Request filters
+│   │   │   ├── auth.js          # JWT authentication headers guard
+│   │   │   └── upload.js        # Multer in-memory upload limits (10MB)
+│   │   ├── validators/          # Input checking
+│   │   │   └── schemas.js       # Zod verification objects
+│   │   ├── controllers/         # Endpoint callbacks logic
+│   │   │   ├── authController.js # Signup, hashing & signing
+│   │   │   ├── documentController.js # Multi-format file parsing & extraction
+│   │   │   └── ragController.js  # RAG event streams handler
+│   │   ├── routes/              # Express Router mapping
+│   │   │   ├── auth.js          # /api/auth routes
+│   │   │   ├── documents.js     # /api/documents routes
+│   │   │   └── rag.js           # /api/ask routes
+│   │   ├── index.js             # Bootstrap server & mount middlewares
+│   │   └── summarizer.js        # LangChain pipelines & vector math fallback
+│   ├── package.json
+│   └── .env                     # Centralized credentials (ignored by Git)
 ```
 
-## Environment Variables
+---
 
-Create your backend environment file:
+## 🚀 Installation & Setup
+
+### 1. Environment Configurations
+Create a `.env` file inside the `server/` directory:
 
 ```bash
 copy server\.env.example server\.env
 ```
 
-Fill in these values:
+Define the variables inside `server/.env`:
 
 ```env
-GEMINI_API_KEY=your_gemini_api_key
-GEMINI_MODEL=gemini-3.5-flash
-GEMINI_EMBEDDING_MODEL=gemini-embedding-001
+PORT=5000
+JWT_SECRET=your_super_secret_jwt_key
 MONGODB_URI=mongodb://127.0.0.1:27017
 MONGODB_DB=aht_summarizer
-CLIENT_ORIGIN=http://localhost:5173
-PORT=5000
+GEMINI_API_KEY=AIzaSy...
+GEMINI_MODEL=gemini-2.5-flash
+GEMINI_EMBEDDING_MODEL=text-embedding-004
+CLIENT_ORIGIN=http://localhost:5175
 ```
 
-Do not commit `server/.env`. It contains private API keys and database credentials.
-
-## Installation
-
-Install backend dependencies:
+### 2. Dependency Installation
+Install dependencies for both folders:
 
 ```bash
+# Install backend packages
 npm install --prefix server
-```
 
-Install frontend dependencies:
-
-```bash
+# Install frontend packages
 npm install --prefix client
 ```
 
-## Run Locally
-
-Start the backend API:
+### 3. Running Locally
+Start both backend API and frontend client in separate terminals:
 
 ```bash
+# Start backend server (starts in watch mode on port 5000)
 npm run dev --prefix server
-```
 
-Start the React app in another terminal:
-
-```bash
+# Start Vite client dev server (starts on port 5175)
 npm run dev --prefix client
 ```
 
-Open the app:
+Open [http://localhost:5175](http://localhost:5175) in your web browser.
 
-```text
-http://localhost:5173
-```
+---
 
-The frontend proxies API requests to:
+## 📡 API Reference
 
-```text
-http://localhost:5000
-```
+### Authentication Routes
+* `POST /api/auth/register` - Creates a new user account.
+* `POST /api/auth/login` - Signs in a user and returns a JWT token.
 
-## API Routes
+### Document Routes
+* `POST /api/extract-text` - Extracts text from uploaded `.txt`, `.pdf`, or `.docx` files.
+* `GET /api/documents` - Lists the summaries created by the logged-in user.
+* `DELETE /api/documents/:id` - Deletes a document and its database vector chunks.
+* `POST /api/summarize/stream` - Accepts source text, generates chunks, and streams the summary.
 
-| Method | Route | Purpose |
-| --- | --- | --- |
-| `GET` | `/api/health` | Checks whether the API is reachable |
-| `GET` | `/api/documents` | Returns recent stored summaries |
-| `POST` | `/api/summarize` | Summarizes text, chunks it, embeds it, and stores it |
-| `POST` | `/api/ask` | Answers a question using retrieved chunks from MongoDB |
-
-## Useful Commands
-
-Run frontend lint:
-
-```bash
-npm run lint --prefix client
-```
-
-Build frontend:
-
-```bash
-npm run build --prefix client
-```
-
-List Gemini models available for your API key:
-
-```bash
-npm run models --prefix server
-```
-
-## Key Features
-
-- AI text summarization with selectable summary style.
-- RAG-based follow-up question answering.
-- MongoDB document and vector storage.
-- Stored summary history.
-- Live API/storage status in the navbar.
-- Light and dark theme support.
-- Clean frontend/backend separation.
-- Gemini model helper for debugging model-name issues.
-
-## Notes
-
-- `server/.env` is ignored by git and should stay private.
-- MongoDB must be reachable before starting the backend.
-- The default chat model is `gemini-3.5-flash`.
-- The default embedding model is `gemini-embedding-001`.
+### RAG Chat Routes
+* `POST /api/ask/stream` - Asks a question using document context and streams the answer using Cosine Similarity.
