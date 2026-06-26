@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { BookOpenText, Clock3, FileText, Loader2, MessageCircle, Sparkles } from 'lucide-react'
 import Navbar from './components/Navbar'
+import AuthPage from './pages/AuthPage'
+import Dashboard from './pages/Dashboard'
 import './App.css'
 
 const sampleText =
@@ -22,6 +23,19 @@ function App() {
   const [asking, setAsking] = useState(false)
   const [error, setError] = useState('')
   const [apiStatus, setApiStatus] = useState('checking')
+  const [uploading, setUploading] = useState(false)
+  const [uploadFilename, setUploadFilename] = useState('')
+  const [ragScope, setRagScope] = useState('active')
+  const [isDragging, setIsDragging] = useState(false)
+  const [chatHistory, setChatHistory] = useState([])
+
+  // Auth States
+  const [token, setToken] = useState(() => localStorage.getItem('token') || '')
+  const [userEmail, setUserEmail] = useState(() => localStorage.getItem('userEmail') || '')
+  const [authEmail, setAuthEmail] = useState('')
+  const [authPassword, setAuthPassword] = useState('')
+  const [authMode, setAuthMode] = useState('login')
+  const [authError, setAuthError] = useState('')
 
   const characterCount = text.trim().length
   const wordCount = useMemo(() => text.trim().split(/\s+/).filter(Boolean).length, [text])
@@ -36,7 +50,10 @@ function App() {
   }
 
   async function loadDocuments() {
-    const response = await fetch('/api/documents')
+    if (!token) return
+    const response = await fetch('/api/documents', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
     if (!response.ok) return
     const data = await response.json()
     setDocuments(data.documents || [])
@@ -44,6 +61,7 @@ function App() {
 
   useEffect(() => {
     let shouldUpdate = true
+    if (!token) return
 
     fetch('/api/health')
       .then((response) => {
@@ -53,7 +71,9 @@ function App() {
         if (shouldUpdate) setApiStatus('offline')
       })
 
-    fetch('/api/documents')
+    fetch('/api/documents', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
       .then((response) => {
         if (shouldUpdate && response.ok) setApiStatus('online')
         return response.ok ? response.json() : { documents: [] }
@@ -68,7 +88,99 @@ function App() {
     return () => {
       shouldUpdate = false
     }
-  }, [])
+  }, [token])
+
+  async function handleAuth(event) {
+    event.preventDefault()
+    setLoading(true)
+    setAuthError('')
+
+    const endpoint = authMode === 'login' ? '/api/auth/login' : '/api/auth/register'
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: authEmail, password: authPassword }),
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.message || 'Authentication failed.')
+
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('userEmail', data.email)
+      setToken(data.token)
+      setUserEmail(data.email)
+      setAuthEmail('')
+      setAuthPassword('')
+    } catch (err) {
+      setAuthError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('token')
+    localStorage.removeItem('userEmail')
+    setToken('')
+    setUserEmail('')
+    setDocuments([])
+    setActiveDocumentId('')
+    setSummary('')
+    setTitle('')
+    setQuestion('')
+    setAnswer('')
+    setSources([])
+    setChatHistory([])
+  }
+
+  async function readStream(response, onChunk, onMetadata, onSources, onHistory) {
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder('utf-8')
+    let buffer = ''
+
+    try {
+      while (true) {
+        const { value, done } = await reader.read()
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split('\n')
+        buffer = lines.pop()
+
+        for (const line of lines) {
+          const cleanLine = line.trim()
+          if (!cleanLine.startsWith('data: ')) continue
+
+          const jsonStr = cleanLine.slice(6)
+          if (jsonStr === '[DONE]') continue
+
+          try {
+            const data = JSON.parse(jsonStr)
+            if (data.error) {
+              throw new Error(data.error)
+            }
+            if (data.text !== undefined) {
+              onChunk(data.text)
+            }
+            if (data.id !== undefined) {
+              onMetadata(data)
+            }
+            if (data.sources !== undefined) {
+              onSources(data.sources)
+            }
+            if (data.chatHistory !== undefined) {
+              onHistory(data.chatHistory)
+            }
+          } catch (err) {
+            console.error('Error parsing chunk:', err)
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock()
+    }
+  }
 
   async function handleSummarize(event) {
     event.preventDefault()
@@ -79,15 +191,32 @@ function App() {
     setSources([])
 
     try {
-      const response = await fetch('/api/summarize', {
+      const response = await fetch('/api/summarize/stream', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
         body: JSON.stringify({ title, text, question, mode }),
       })
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.message || 'Unable to summarize text.')
-      setSummary(data.summary)
-      setActiveDocumentId(data.id)
+      
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.message || 'Unable to summarize text.')
+      }
+
+      await readStream(
+        response,
+        (chunk) => {
+          setSummary((prev) => prev + chunk)
+        },
+        (metadata) => {
+          setActiveDocumentId(metadata.id)
+        },
+        () => {},
+        () => {}
+      )
+
       await loadDocuments()
     } catch (requestError) {
       setError(requestError.message)
@@ -98,27 +227,191 @@ function App() {
 
   async function handleAsk(event) {
     event.preventDefault()
-    if (!activeDocumentId) return
+    const docId = ragScope === 'global' ? 'global' : activeDocumentId
+    if (!docId) return
+
+    const userQuestion = askText.trim()
+    if (!userQuestion) return
 
     setAsking(true)
     setError('')
+    setAskText('')
     setAnswer('')
     setSources([])
 
+    // Optimistically update chat history for document-scoped chat
+    if (docId !== 'global') {
+      setChatHistory((prev) => [...prev, { role: 'user', content: userQuestion }])
+    }
+
     try {
-      const response = await fetch('/api/ask', {
+      const response = await fetch('/api/ask/stream', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ documentId: activeDocumentId, question: askText }),
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ documentId: docId, question: userQuestion }),
       })
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.message || 'Unable to answer the question.')
-      setAnswer(data.answer)
-      setSources(data.sources || [])
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.message || 'Unable to answer the question.')
+      }
+
+      let accumulatedAnswer = ''
+      await readStream(
+        response,
+        (chunk) => {
+          accumulatedAnswer += chunk
+          setAnswer(accumulatedAnswer)
+          
+          if (docId !== 'global') {
+            setChatHistory((prev) => {
+              const list = [...prev]
+              const last = list[list.length - 1]
+              if (last && last.role === 'assistant') {
+                const updated = { ...last, content: accumulatedAnswer }
+                list[list.length - 1] = updated
+                return list
+              } else {
+                return [...list, { role: 'assistant', content: chunk }]
+              }
+            })
+          }
+        },
+        () => {},
+        (srcs) => {
+          setSources(srcs)
+        },
+        (history) => {
+          setChatHistory(history)
+        }
+      )
     } catch (requestError) {
       setError(requestError.message)
+      // Rollback optimistic update on error
+      if (docId !== 'global' && activeDocumentId) {
+        const activeDoc = documents.find(d => d._id === activeDocumentId)
+        if (activeDoc) {
+          setChatHistory(activeDoc.chatHistory || [])
+        }
+      }
     } finally {
       setAsking(false)
+    }
+  }
+
+  async function handleFileUpload(event) {
+    const file = event.target.files[0]
+    if (!file) return
+
+    setUploading(true)
+    setUploadFilename(file.name)
+    setError('')
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const response = await fetch('/api/extract-text', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.message || 'Failed to extract text.')
+      
+      setText(data.text || '')
+      if (data.title) {
+        setTitle(data.title)
+      }
+    } catch (uploadError) {
+      setError(uploadError.message)
+      setUploadFilename('')
+    } finally {
+      setUploading(false)
+      event.target.value = ''
+    }
+  }
+
+  // Drag and drop handlers
+  function handleDragOver(event) {
+    event.preventDefault()
+    setIsDragging(true)
+  }
+
+  function handleDragLeave(event) {
+    event.preventDefault()
+    setIsDragging(false)
+  }
+
+  async function handleDrop(event) {
+    event.preventDefault()
+    setIsDragging(false)
+
+    const file = event.dataTransfer.files[0]
+    if (!file) return
+
+    const name = file.name.toLowerCase()
+    if (!name.endsWith('.txt') && !name.endsWith('.pdf') && !name.endsWith('.docx')) {
+      setError('Unsupported file type. Please drag .txt, .pdf, or .docx files.')
+      return
+    }
+
+    setUploading(true)
+    setUploadFilename(file.name)
+    setError('')
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const response = await fetch('/api/extract-text', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.message || 'Failed to extract text.')
+
+      setText(data.text || '')
+      if (data.title) {
+        setTitle(data.title)
+      }
+    } catch (uploadError) {
+      setError(uploadError.message)
+      setUploadFilename('')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  async function handleDeleteDocument(event, docId) {
+    event.stopPropagation()
+    if (!window.confirm('Are you sure you want to delete this document and all its chunks?')) return
+
+    try {
+      const response = await fetch(`/api/documents/${docId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.message || 'Unable to delete document.')
+
+      if (activeDocumentId === docId) {
+        setActiveDocumentId('')
+        setSummary('')
+        setTitle('')
+        setQuestion('')
+        setAnswer('')
+        setSources([])
+        setChatHistory([])
+      }
+
+      await loadDocuments()
+    } catch (deleteError) {
+      setError(deleteError.message)
     }
   }
 
@@ -130,157 +423,73 @@ function App() {
     setMode(document.mode || 'detailed')
     setAnswer('')
     setSources([])
+    setChatHistory(document.chatHistory || [])
+  }
+
+  // Render Login Shield if not authenticated
+  if (!token) {
+    return (
+      <AuthPage
+        authMode={authMode}
+        setAuthMode={setAuthMode}
+        authEmail={authEmail}
+        setAuthEmail={setAuthEmail}
+        authPassword={authPassword}
+        setAuthPassword={setAuthPassword}
+        authError={authError}
+        setAuthError={setAuthError}
+        handleAuth={handleAuth}
+        loading={loading}
+      />
+    )
   }
 
   return (
     <>
-      <Navbar apiStatus={apiStatus} theme={theme} onToggleTheme={toggleTheme} />
-      <main className="app-shell min-h-screen">
-        <section
-          id="summarize"
-          className="mx-auto grid w-full max-w-7xl gap-6 px-5 pb-10 pt-28 lg:grid-cols-[1.15fr_0.85fr] lg:px-8"
-        >
-          <form onSubmit={handleSummarize} className="workspace-panel">
-            <div className="panel-header flex flex-col gap-4 border-b pb-5 md:flex-row md:items-center md:justify-between">
-              <div>
-                <p className="eyebrow">LangChain + RAG + MongoDB</p>
-                <h1 className="mt-2 text-3xl font-semibold tracking-normal md:text-5xl">
-                  Text Summarizer
-                </h1>
-              </div>
-              <div className="stats-row">
-                <span>
-                  <FileText size={16} /> {wordCount} words
-                </span>
-                <span>
-                  <BookOpenText size={16} /> {characterCount} chars
-                </span>
-              </div>
-            </div>
-
-            <label className="field-label" htmlFor="title">
-              Title
-            </label>
-            <input
-              id="title"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              placeholder="Q2 market research notes"
-              className="text-input"
-            />
-
-            <label className="field-label" htmlFor="source-text">
-              Source text
-            </label>
-            <textarea
-              id="source-text"
-              value={text}
-              onChange={(event) => setText(event.target.value)}
-              placeholder={sampleText}
-              className="source-textarea"
-            />
-
-            <div className="grid gap-4 md:grid-cols-[1fr_220px]">
-              <div>
-                <label className="field-label" htmlFor="question">
-                  Optional focus
-                </label>
-                <input
-                  id="question"
-                  value={question}
-                  onChange={(event) => setQuestion(event.target.value)}
-                  placeholder="Focus on risks, tasks, or key decisions"
-                  className="text-input"
-                />
-              </div>
-              <div>
-                <label className="field-label" htmlFor="mode">
-                  Summary style
-                </label>
-                <select
-                  id="mode"
-                  value={mode}
-                  onChange={(event) => setMode(event.target.value)}
-                  className="text-input"
-                >
-                  <option value="detailed">Detailed</option>
-                  <option value="brief">Brief</option>
-                  <option value="bullets">Bullets</option>
-                </select>
-              </div>
-            </div>
-
-            {error && <p className="error-box">{error}</p>}
-
-            <button disabled={loading} className="primary-button">
-              {loading ? <Loader2 className="animate-spin" size={18} /> : <Sparkles size={18} />}
-              {loading ? 'Summarizing' : 'Summarize and store'}
-            </button>
-          </form>
-
-          <aside className="flex flex-col gap-6">
-            <section className="workspace-panel">
-              <div className="section-heading">
-                <Sparkles size={19} />
-                <h2>Summary</h2>
-              </div>
-              <div className="result-box">
-                {summary || 'Your generated summary will appear here after the API responds.'}
-              </div>
-            </section>
-
-            <section id="rag" className="workspace-panel scroll-mt-28">
-              <div className="section-heading">
-                <MessageCircle size={19} />
-                <h2>Ask With RAG</h2>
-              </div>
-              <form onSubmit={handleAsk} className="ask-form">
-                <input
-                  value={askText}
-                  onChange={(event) => setAskText(event.target.value)}
-                  placeholder="Ask a follow-up about the stored document"
-                  className="text-input"
-                />
-                <button disabled={asking || !activeDocumentId} className="secondary-button">
-                  {asking ? <Loader2 className="animate-spin" size={17} /> : 'Ask'}
-                </button>
-              </form>
-              {answer && <div className="answer-box">{answer}</div>}
-              {sources.length > 0 && (
-                <div className="sources-list">
-                  {sources.map((source) => (
-                    <p key={source.index}>
-                      Chunk {source.index + 1} | score {source.score}: {source.preview}
-                    </p>
-                  ))}
-                </div>
-              )}
-            </section>
-          </aside>
-        </section>
-
-        <section id="history" className="mx-auto w-full max-w-7xl scroll-mt-28 px-5 pb-12 lg:px-8">
-          <div className="workspace-panel">
-            <div className="section-heading">
-              <Clock3 size={19} />
-              <h2>Stored summaries</h2>
-            </div>
-            <div className="history-grid">
-              {documents.map((document) => (
-                <button
-                  key={document._id}
-                  onClick={() => chooseDocument(document)}
-                  className={`history-item ${activeDocumentId === document._id ? 'is-active' : ''}`}
-                >
-                  <span>{document.title}</span>
-                  <small>{document.chunkCount || 0} chunks</small>
-                </button>
-              ))}
-              {!documents.length && <p className="muted-text">No summaries stored yet.</p>}
-            </div>
-          </div>
-        </section>
-      </main>
+      <Navbar
+        apiStatus={apiStatus}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        userEmail={userEmail}
+        onLogout={handleLogout}
+      />
+      <Dashboard
+        title={title}
+        setTitle={setTitle}
+        text={text}
+        setText={setText}
+        question={question}
+        setQuestion={setQuestion}
+        mode={mode}
+        setMode={setMode}
+        handleSummarize={handleSummarize}
+        uploading={uploading}
+        uploadFilename={uploadFilename}
+        handleFileUpload={handleFileUpload}
+        isDragging={isDragging}
+        handleDragOver={handleDragOver}
+        handleDragLeave={handleDragLeave}
+        handleDrop={handleDrop}
+        loading={loading}
+        error={error}
+        wordCount={wordCount}
+        characterCount={characterCount}
+        sampleText={sampleText}
+        summary={summary}
+        handleAsk={handleAsk}
+        ragScope={ragScope}
+        setRagScope={setRagScope}
+        askText={askText}
+        setAskText={setAskText}
+        asking={asking}
+        activeDocumentId={activeDocumentId}
+        chatHistory={chatHistory}
+        answer={answer}
+        sources={sources}
+        documents={documents}
+        chooseDocument={chooseDocument}
+        handleDeleteDocument={handleDeleteDocument}
+      />
     </>
   )
 }

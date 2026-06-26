@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckCircle2, CircleAlert, Clock3, Menu, Moon, Search, Sparkles, Sun, X } from "lucide-react";
+import { Menu, Moon, Sparkles, Sun, X, LogOut } from "lucide-react";
 
 const navLinks = [
   { title: "Summarize", href: "#summarize" },
@@ -8,32 +8,12 @@ const navLinks = [
   { title: "History", href: "#history" },
 ];
 
-const statusCopy = {
-  checking: {
-    label: "Checking API",
-    title: "Checking the Node API and MongoDB connection",
-    icon: Clock3,
-    className: "status-badge is-checking",
-  },
-  online: {
-    label: "Storage online",
-    title: "Node API is reachable. MongoDB connected when the server started.",
-    icon: CheckCircle2,
-    className: "status-badge is-online",
-  },
-  offline: {
-    label: "API offline",
-    title: "Start the Node server, then refresh this page.",
-    icon: CircleAlert,
-    className: "status-badge is-offline",
-  },
-};
 
-export default function Navbar({ apiStatus = "checking", theme = "light", onToggleTheme }) {
+export default function Navbar({ apiStatus = "checking", theme = "light", onToggleTheme, userEmail, onLogout }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const status = statusCopy[apiStatus] || statusCopy.checking;
-  const StatusIcon = status.icon;
+  const [hoveredLink, setHoveredLink] = useState(null);
+  
   const isDarkMode = theme === "dark";
 
   useEffect(() => {
@@ -59,57 +39,99 @@ export default function Navbar({ apiStatus = "checking", theme = "light", onTogg
 
   return (
     <>
-      <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className={`app-navbar fixed left-0 right-0 top-0 z-50 transition-all duration-300 ease-out ${
-          isScrolled || mobileMenuOpen ? "is-scrolled py-3" : "py-5"
-        }`}
-      >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 md:px-12">
+      <div className="fixed left-0 right-0 top-0 z-50 flex justify-center px-4 py-4 md:px-8">
+        <motion.nav
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className={`w-full max-w-7xl rounded-full border transition-all duration-300 ${
+            isScrolled
+              ? "bg-[var(--nav-bg)] border-[var(--panel-border)] shadow-lg backdrop-blur-md py-2 px-6"
+              : "bg-transparent border-transparent py-4 px-4"
+          } flex items-center justify-between`}
+        >
+          {/* Brand Logo */}
           <a href="#summarize" className="brand-lockup z-50" onClick={closeMobileMenu}>
-            <span className="brand-mark">
-              <Sparkles className="h-4 w-4" />
+            <motion.span 
+              whileHover={{ rotate: 15, scale: 1.08 }}
+              className="brand-mark shadow-sm"
+            >
+              <Sparkles className="h-4 w-4 text-[var(--accent)]" />
+            </motion.span>
+            <span className="font-bold tracking-tight bg-gradient-to-r from-[var(--text)] to-[var(--subtle)] bg-clip-text">
+              AHT Summarizer
             </span>
-            <span>AHT Summarizer</span>
           </a>
 
-          <div className="hidden items-center gap-8 md:flex">
+          {/* Desktop Navigation Links */}
+          <div className="hidden items-center gap-1 md:flex">
             {navLinks.map((link) => (
-              <a key={link.title} href={link.href} className="nav-link">
-                {link.title}
+              <a
+                key={link.title}
+                href={link.href}
+                className="nav-link relative px-4 py-2 text-sm font-semibold transition-colors"
+                onMouseEnter={() => setHoveredLink(link.title)}
+                onMouseLeave={() => setHoveredLink(null)}
+              >
+                {hoveredLink === link.title && (
+                  <motion.span
+                    layoutId="nav-hover-pill"
+                    className="absolute inset-0 -z-10 rounded-full bg-[var(--accent-soft)]"
+                    transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                  />
+                )}
+                <span className={hoveredLink === link.title ? "text-[var(--accent-strong)]" : "text-[var(--subtle)]"}>
+                  {link.title}
+                </span>
               </a>
             ))}
           </div>
 
+          {/* Desktop Right Actions */}
           <div className="hidden items-center gap-3 md:flex">
+            {userEmail && (
+              <div className="flex items-center gap-2 px-3 py-1 bg-[var(--accent-soft)] border border-[var(--panel-border)] rounded-full">
+                <span className="w-2 h-2 rounded-full bg-[var(--accent)] animate-pulse" />
+                <span className="text-xs font-semibold text-[var(--accent-strong)] max-w-[120px] truncate" title={userEmail}>
+                  {userEmail.split("@")[0]}
+                </span>
+              </div>
+            )}
+            
+            {userEmail && (
+              <button
+                onClick={onLogout}
+                className="theme-toggle flex items-center gap-1 hover:bg-[var(--danger-bg)] hover:text-[var(--danger-text)] hover:border-[var(--danger-border)] cursor-pointer"
+                title="Log Out"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                <span>Log Out</span>
+              </button>
+            )}
+
             <button
               onClick={onToggleTheme}
-              className="theme-toggle"
+              className="theme-toggle cursor-pointer"
               aria-label={`Switch to ${isDarkMode ? "light" : "dark"} theme`}
               title={`Switch to ${isDarkMode ? "light" : "dark"} theme`}
             >
-              {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              {isDarkMode ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-indigo-500" />}
               <span>{isDarkMode ? "Light" : "Dark"}</span>
             </button>
-            <span className={status.className} title={status.title}>
-              <StatusIcon className="h-4 w-4" />
-              {status.label}
-            </span>
           </div>
 
-          <div className="z-50 flex items-center gap-3 md:hidden">
+          {/* Mobile Actions Menu */}
+          <div className="z-50 flex items-center gap-2 md:hidden">
             <button
               onClick={onToggleTheme}
-              className="icon-button"
-              aria-label={`Switch to ${isDarkMode ? "light" : "dark"} theme`}
+              className="icon-button cursor-pointer"
+              aria-label="Switch Theme"
             >
-              {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              {isDarkMode ? <Sun className="h-5 w-5 text-amber-400" /> : <Moon className="h-5 w-5 text-indigo-500" />}
             </button>
             <button
               onClick={() => setMobileMenuOpen((isOpen) => !isOpen)}
-              className="icon-button"
+              className="icon-button cursor-pointer"
               aria-label="Open navigation menu"
             >
               <AnimatePresence mode="wait">
@@ -137,9 +159,10 @@ export default function Navbar({ apiStatus = "checking", theme = "light", onTogg
               </AnimatePresence>
             </button>
           </div>
-        </div>
-      </motion.nav>
+        </motion.nav>
+      </div>
 
+      {/* Mobile Menu Drawer */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -147,7 +170,7 @@ export default function Navbar({ apiStatus = "checking", theme = "light", onTogg
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="mobile-drawer fixed inset-0 z-40 flex flex-col px-6 pt-24 md:hidden"
+            className="mobile-drawer fixed inset-0 z-40 flex flex-col px-6 pt-24 md:hidden bg-[var(--app-bg)]/98 backdrop-blur-xl"
           >
             <div className="mt-8 flex flex-col gap-6">
               {navLinks.map((link, i) => (
@@ -158,9 +181,8 @@ export default function Navbar({ apiStatus = "checking", theme = "light", onTogg
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.08, duration: 0.35, ease: "easeOut" }}
-                  className="mobile-nav-link"
+                  className="mobile-nav-link border-b border-[var(--panel-border)] pb-4 text-2xl font-bold text-[var(--text)] hover:text-[var(--accent)]"
                 >
-                  {link.title === "RAG Q&A" ? <Search className="h-6 w-6" /> : null}
                   {link.title}
                 </motion.a>
               ))}
@@ -170,12 +192,25 @@ export default function Navbar({ apiStatus = "checking", theme = "light", onTogg
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.35 }}
-              className="mt-auto mb-12"
+              className="mt-auto mb-12 flex flex-col gap-4"
             >
-              <span className={status.className} title={status.title}>
-                <StatusIcon className="h-4 w-4" />
-                {status.label}
-              </span>
+              {userEmail && (
+                <div className="flex flex-col gap-2 p-4 bg-[var(--accent-soft)] rounded-2xl border border-[var(--panel-border)]">
+                  <span className="text-xs font-semibold text-[var(--accent-strong)] text-center">
+                    Signed in as {userEmail}
+                  </span>
+                  <button
+                    onClick={() => {
+                      closeMobileMenu();
+                      onLogout();
+                    }}
+                    className="theme-toggle w-full justify-center hover:bg-[var(--danger-bg)] hover:text-[var(--danger-text)] cursor-pointer"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Log Out
+                  </button>
+                </div>
+              )}
             </motion.div>
           </motion.div>
         )}
