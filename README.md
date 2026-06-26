@@ -9,7 +9,7 @@ AHT Text Summarizer is a premium, full-stack AI orchestration platform that hand
 
 ---
 
-## 🚀 What's New: The Soulful Upgrades
+## 🚀 What's New:
 
 We have introduced premium design tokens, mobile optimization, and resolved database conflicts to build a deeply soulful workspace:
 
@@ -22,7 +22,7 @@ We have introduced premium design tokens, mobile optimization, and resolved data
 
 ---
 
-## 🎨 Soulful UI Design
+## 🎨 AHT UI Design
 
 The interface has been crafted with a modern, glassmorphic design language to deliver a premium, responsive workspace.
 
@@ -69,7 +69,6 @@ The primary interactive flow inside the dashboard works as follows:
 
 ## 📐 Application Architecture
 
-```mermaid
 flowchart TD
   User["👤 User Interface (React)"]
   
