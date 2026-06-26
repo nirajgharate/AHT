@@ -1,8 +1,24 @@
 # ✨ AHT Text Summarizer & RAG Dashboard
 
-![AHT Text Summarizer Preview](client/public/project-preview.svg)
+<p align="center">
+  <img src="client/public/project-preview.svg" width="68%" alt="AHT Text Summarizer Desktop Preview" />
+  <img src="client/public/mobile-preview.svg" width="28%" alt="AHT Text Summarizer Mobile Preview" style="margin-left: 2%;" />
+</p>
 
 AHT Text Summarizer is a premium, full-stack AI orchestration platform that handles text summarization, stores source materials in MongoDB, and runs context-grounded follow-up RAG chatbot sessions. Powered by React, Node.js/Express, LangChain, and Gemini.
+
+---
+
+## 🚀 What's New: The Soulful Upgrades
+
+We have introduced premium design tokens, mobile optimization, and resolved database conflicts to build a deeply soulful workspace:
+
+* **Floating Glass Navbar**: The top header is now a suspended, centered glassmorphic pill featuring spring-hover Framer Motion indicators. We cut the connection status badges to keep links clean and focused.
+* **Responsive Grid Inputs**: The **Optional focus** text input and **Summary style** select dropdown now sit side-by-side on mobile viewports using a custom `grid-cols-[1fr_120px]` grid. This keeps form controls compact and visually balanced.
+* **Metallic Shine Upload Button**: The file upload control is styled as a glassy, translucent pill button with a metallic reflection sweep animation on hover and icon translation.
+* **Verified Document Badge**: Successfully uploaded files display inside a status pill accompanied by a green `CheckCircle2` success icon.
+* **Independent Scroll Containment**: Custom-designed scrollbar tracks and capped heights prevent large datasets or long summaries from stretching the vertical layout out of proportion.
+* **Stable PDF Extraction**: Overhauled the backend parser using a native ESM `PDFParse` configuration with `disableWorker: true` to prevent event loop crashes in Windows environments.
 
 ---
 
@@ -11,7 +27,7 @@ AHT Text Summarizer is a premium, full-stack AI orchestration platform that hand
 The interface has been crafted with a modern, glassmorphic design language to deliver a premium, responsive workspace.
 
 ### 💻 Desktop View Features
-* **Floating Glass Navbar**: A centered, glass-frosted navigation pill that slides down from the top on page load. It features smooth **Framer Motion spring sweeps** that follow link hovers, profile badges, and theme switches.
+* **Suspended Floating Navbar**: Centered glass navigation pill with animated hover sweeps, profile badges, and theme switches.
 * **Balanced Split-Screen Workspace**:
   - **Left Column**: The **Summarizer Workspace** contains fields for custom titles, source text areas, custom focus queries, and summary style selectors.
   - **Right Column**: Displays the generated **Summary Output** and the **RAG Ask Panel** side-by-side. 
@@ -20,7 +36,7 @@ The interface has been crafted with a modern, glassmorphic design language to de
 
 ### 📱 Mobile View Adaptations
 * **Optimized Card Spacing**: Panels collapse their padding from `32px` on desktop down to `20px` on mobile, reclaiming critical screen estate.
-* **Side-by-Side Mobile Inputs**: The **Optional focus** text field and **Summary style** select dropdown are placed in a side-by-side grid (`grid-cols-[1fr_120px]`). This prevents the dropdown from stretching and keeps the form vertically compact.
+* **Side-by-Side Mobile Inputs**: The Optional focus field and Summary style dropdown sit next to each other, saving vertical scroll height.
 * **Responsive History Stacking**: Stored summary items automatically stack into a single column on small screens, adapting smoothly to touch interfaces.
 * **Drawer Navigation**: A full-screen glassmorphic mobile drawer handles responsive routing, theme shifting, and profile logout options.
 
@@ -86,16 +102,6 @@ flowchart TD
   Controller --> LLM
   LLM --> Client
 ```
-
----
-
-## ⚡ Key Technical Features
-
-* **ESM PDF Parser Fix**: Configured the backend with native ES Module imports using the newer `PDFParse` class and setting `disableWorker: true`. This prevents Windows-based event loop native thread assertion crashes (`win/async.c`) and runs parsing synchronously on the main thread.
-* **Docx & Text Support**: Parses Microsoft Word documents using `Mammoth` and `.txt` files directly.
-* **Hybrid Vector Retrieval**: Uses MongoDB Atlas Vector Search index pipeline for similarity lookups, falling back automatically to local in-memory cosine-similarity algorithms on standard local MongoDB installations.
-* **Token Authentication**: Secure JWT endpoints guard all summarization, chat, and document deletion routes.
-* **Event Streams (SSE)**: Summaries and RAG chat replies stream token-by-token using Server-Sent Events, ensuring zero lag for long responses.
 
 ---
 

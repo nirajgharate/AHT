@@ -1,0 +1,113 @@
+<svg width="420" height="760" viewBox="0 0 420 760" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="mtitle mdesc">
+  <title id="mtitle">AHT Text Summarizer Mobile Preview</title>
+  <desc id="mdesc">A mobile mockup interface showcasing the collapsed card structure, responsive side-by-side controls, and floating drawer navigation.</desc>
+
+  <defs>
+    <!-- Background Gradients -->
+    <radialGradient id="mbgGrad1" cx="0%" cy="0%" r="70%" fx="0%" fy="0%">
+      <stop offset="0%" stop-color="#ccfbf1" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="mbgGrad2" cx="100%" cy="100%" r="60%" fx="100%" fy="100%">
+      <stop offset="0%" stop-color="#e0e7ff" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    
+    <!-- Primary Button Gradients -->
+    <linearGradient id="mprimaryBtn" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d9488"/>
+      <stop offset="100%" stop-color="#0f766e"/>
+    </linearGradient>
+    <linearGradient id="muploadBtn" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdfa"/>
+      <stop offset="100%" stop-color="#ccfbf1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Mobile phone shell background with rounded viewport -->
+  <rect x="0" y="0" width="420" height="760" rx="36" fill="#0f172a"/>
+  
+  <!-- Viewport area (Screen) -->
+  <rect x="10" y="10" width="400" height="740" rx="28" fill="#fafafa"/>
+  <rect x="10" y="10" width="400" height="740" rx="28" fill="url(#mbgGrad1)"/>
+  <rect x="10" y="10" width="400" height="740" rx="28" fill="url(#mbgGrad2)"/>
+
+  <!-- Phone notch -->
+  <path d="M150 10H270C270 10 265 24 255 24H165C155 24 150 10 150 10Z" fill="#0f172a"/>
+
+  <!-- Floating Mobile Navbar (centered pill) -->
+  <rect x="24" y="36" width="372" height="50" rx="25" fill="rgba(255, 255, 255, 0.75)" stroke="rgba(15, 118, 110, 0.08)" stroke-width="1.2" style="backdrop-filter: blur(16px);"/>
+  
+  <!-- Navbar Brand Logo -->
+  <rect x="36" y="46" width="30" height="30" rx="9" fill="rgba(13, 148, 136, 0.08)" stroke="rgba(13, 148, 136, 0.2)" stroke-width="1"/>
+  <path d="M51 51L52.5 56L56.5 57.5L52.5 59L51 64L49.5 59L45.5 57.5L49.5 56L51 51Z" fill="#0d9488"/>
+  <text x="74" y="66" fill="#172554" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="14" font-weight="800">AHT Summarizer</text>
+
+  <!-- Mobile Menu Button (Hamburger) -->
+  <rect x="344" y="46" width="30" height="30" rx="15" fill="#ffffff" stroke="rgba(15, 118, 110, 0.08)"/>
+  <path d="M351 56H367M351 61H367" stroke="#172554" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Page Content Container (Form Card) -->
+  <rect x="24" y="104" width="372" height="498" rx="20" fill="rgba(255, 255, 255, 0.72)" stroke="rgba(15, 118, 110, 0.08)" stroke-width="1" style="backdrop-filter: blur(16px);"/>
+  
+  <text x="44" y="132" fill="#0d9488" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="11" font-weight="800" letter-spacing="0.05em">LANGCHAIN + RAG + MONGODB</text>
+  <text x="44" y="162" fill="#172554" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="24" font-weight="800">Text Summarizer</text>
+
+  <!-- Word & Char Badges -->
+  <rect x="44" y="174" width="94" height="24" rx="12" fill="rgba(13, 148, 136, 0.08)" stroke="rgba(13, 148, 136, 0.16)"/>
+  <text x="58" y="190" fill="#0f766e" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="10" font-weight="700">📄 310 words</text>
+  <rect x="144" y="174" width="102" height="24" rx="12" fill="rgba(13, 148, 136, 0.08)" stroke="rgba(13, 148, 136, 0.16)"/>
+  <text x="158" y="190" fill="#0f766e" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="10" font-weight="700">📖 1,842 chars</text>
+
+  <!-- Title Input -->
+  <text x="44" y="222" fill="#172554" opacity="0.8" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="12" font-weight="700">Title</text>
+  <rect x="44" y="230" width="332" height="38" rx="10" fill="#ffffff" stroke="rgba(15, 118, 110, 0.15)"/>
+  <text x="58" y="253" fill="#172554" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="13">Quarterly research notes</text>
+
+  <!-- Upload Section (Metallic button and checked filename) -->
+  <rect x="44" y="278" width="190" height="38" rx="12" fill="url(#muploadBtn)" stroke="rgba(13, 148, 136, 0.2)" stroke-width="1"/>
+  <path d="M58 296V289M58 289L55 292M58 289L61 292M53 296H63" stroke="#0f766e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="70" y="301" fill="#0f766e" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="11" font-weight="700">Upload Document (.txt, ...)</text>
+
+  <rect x="240" y="278" width="136" height="38" rx="10" fill="rgba(13, 148, 136, 0.08)" stroke="rgba(13, 148, 136, 0.15)"/>
+  <circle cx="254" cy="297" r="7" fill="#10b981"/>
+  <path d="M251 297L253 299L257 294" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="266" y="301" fill="#0f766e" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="11" font-weight="700">dummy.pdf</text>
+
+  <!-- Text Area -->
+  <text x="44" y="336" fill="#172554" opacity="0.8" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="12" font-weight="700">Source text</text>
+  <rect x="44" y="344" width="332" height="110" rx="10" fill="#ffffff" stroke="rgba(15, 118, 110, 0.15)"/>
+  <rect x="58" y="358" width="240" height="8" rx="4" fill="#f1f5f9"/>
+  <rect x="58" y="376" width="300" height="8" rx="4" fill="#f1f5f9"/>
+  <rect x="58" y="394" width="270" height="8" rx="4" fill="#f1f5f9"/>
+  <rect x="58" y="412" width="290" height="8" rx="4" fill="#f1f5f9"/>
+  <rect x="58" y="430" width="180" height="8" rx="4" fill="#f1f5f9"/>
+  
+  <!-- Custom Scrollbar indicator -->
+  <rect x="368" y="350" width="3" height="98" rx="1.5" fill="rgba(13, 148, 136, 0.05)"/>
+  <rect x="368" y="360" width="3" height="35" rx="1.5" fill="rgba(13, 148, 136, 0.2)"/>
+
+  <!-- Responsive inputs: Side-by-Side on Mobile viewport -->
+  <text x="44" y="474" fill="#172554" opacity="0.8" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="12" font-weight="700">Optional focus</text>
+  <rect x="44" y="482" width="204" height="38" rx="10" fill="#ffffff" stroke="rgba(15, 118, 110, 0.15)"/>
+  <text x="56" y="505" fill="#94a3b8" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="12">Focus topics...</text>
+
+  <text x="256" y="474" fill="#172554" opacity="0.8" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="12" font-weight="700">Summary style</text>
+  <rect x="256" y="482" width="120" height="38" rx="10" fill="#ffffff" stroke="rgba(15, 118, 110, 0.15)"/>
+  <text x="268" y="505" fill="#172554" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="12" font-weight="700">Detailed</text>
+
+  <!-- Submit button -->
+  <rect x="44" y="542" width="332" height="44" rx="12" fill="url(#mprimaryBtn)"/>
+  <path d="M152 563L154 558L156 563L161 565L156 567L154 572L152 567L147 565L152 563Z" fill="#ffffff"/>
+  <text x="170" y="568" fill="#ffffff" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="13" font-weight="800">Summarize and store</text>
+
+  <!-- Stacked Panel 2: Summary Output (Partially scrolled cut off) -->
+  <rect x="24" y="618" width="372" height="122" rx="20" fill="rgba(255, 255, 255, 0.72)" stroke="rgba(15, 118, 110, 0.08)" stroke-width="1" style="backdrop-filter: blur(16px);"/>
+  <path d="M44 645L46.5 639L49 645L55 647.5L49 650L46.5 656L44 650L38 647.5L44 645Z" fill="#0d9488"/>
+  <text x="64" y="651" fill="#172554" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="14" font-weight="800">Summary</text>
+  
+  <rect x="44" y="666" width="332" height="60" rx="12" fill="rgba(248, 250, 252, 0.6)" stroke="rgba(15, 118, 110, 0.08)"/>
+  <rect x="58" y="682" width="220" height="6" rx="3" fill="#a5f3fc"/>
+  <rect x="58" y="698" width="260" height="6" rx="3" fill="#cbd5e1"/>
+  <rect x="58" y="714" width="190" height="6" rx="3" fill="#cbd5e1"/>
+</svg>

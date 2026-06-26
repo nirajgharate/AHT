@@ -1,63 +1,159 @@
 <svg width="1280" height="760" viewBox="0 0 1280 760" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <title id="title">AHT Text Summarizer project preview</title>
-  <desc id="desc">A dashboard-style preview of the React, LangChain, Gemini, RAG, Node.js, and MongoDB text summarizer application.</desc>
-  <rect width="1280" height="760" fill="#F7F7F3"/>
-  <rect x="40" y="34" width="1200" height="692" rx="18" fill="#FFFFFF" stroke="#D6D3D1"/>
-  <rect x="40" y="34" width="1200" height="72" rx="18" fill="#FFFFFF"/>
-  <rect x="40.5" y="105.5" width="1199" height="1" fill="#E7E5E4"/>
+  <title id="title">AHT Text Summarizer Desktop Preview</title>
+  <desc id="desc">A soulful, glassmorphic desktop interface dashboard showing the text editor, upload controls, and RAG ask panels.</desc>
+  
+  <defs>
+    <!-- Background Gradients -->
+    <radialGradient id="bgGrad1" cx="0%" cy="0%" r="60%" fx="0%" fy="0%">
+      <stop offset="0%" stop-color="#ccfbf1" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bgGrad2" cx="100%" cy="0%" r="50%" fx="100%" fy="0%">
+      <stop offset="0%" stop-color="#e0e7ff" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    
+    <!-- Premium Button Gradient -->
+    <linearGradient id="primaryBtn" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d9488"/>
+      <stop offset="100%" stop-color="#0f766e"/>
+    </linearGradient>
+    <linearGradient id="uploadBtn" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdfa"/>
+      <stop offset="100%" stop-color="#ccfbf1"/>
+    </linearGradient>
+  </defs>
 
-  <rect x="72" y="58" width="32" height="32" rx="8" fill="#1C1917"/>
-  <path d="M88 64L90.8 72.2L99 75L90.8 77.8L88 86L85.2 77.8L77 75L85.2 72.2L88 64Z" fill="#F7F7F3"/>
-  <text x="116" y="80" fill="#1C1917" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="21" font-weight="800">AHT Summarizer</text>
+  <!-- Base Page Background with Mesh Gradients -->
+  <rect width="1280" height="760" fill="#fafafa"/>
+  <rect width="1280" height="760" fill="url(#bgGrad1)"/>
+  <rect width="1280" height="760" fill="url(#bgGrad2)"/>
 
-  <text x="505" y="80" fill="#78716C" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Summarize</text>
-  <text x="618" y="80" fill="#78716C" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">RAG Q&amp;A</text>
-  <text x="724" y="80" fill="#78716C" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">History</text>
+  <!-- Centered Floating Navbar (Pill shape, glassmorphic) -->
+  <rect x="240" y="24" width="800" height="60" rx="30" fill="rgba(255, 255, 255, 0.72)" stroke="rgba(15, 118, 110, 0.08)" stroke-width="1.5" style="backdrop-filter: blur(16px);"/>
+  
+  <!-- Navbar Brand -->
+  <rect x="272" y="38" width="32" height="32" rx="10" fill="rgba(13, 148, 136, 0.08)" stroke="rgba(13, 148, 136, 0.2)" stroke-width="1"/>
+  <path d="M288 44L290.5 50.8L297 53L290.5 55.2L288 62L285.5 55.2L279 53L285.5 50.8L288 44Z" fill="#0d9488"/>
+  <text x="314" y="60" fill="#172554" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="16" font-weight="800">AHT Summarizer</text>
 
-  <rect x="1012" y="54" width="82" height="40" rx="20" fill="#F5F5F4" stroke="#E7E5E4"/>
-  <circle cx="1033" cy="74" r="7" fill="#292524"/>
-  <text x="1048" y="79" fill="#292524" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="800">Dark</text>
-  <rect x="1106" y="54" width="102" height="40" rx="20" fill="#EEF7F2" stroke="#99F6E4"/>
-  <circle cx="1126" cy="74" r="7" fill="#0F766E"/>
-  <text x="1141" y="79" fill="#134E4A" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="800">Storage online</text>
+  <!-- Navbar Navigation Links (Hover state highlighted) -->
+  <rect x="536" y="37" width="94" height="34" rx="17" fill="rgba(13, 148, 136, 0.08)"/>
+  <text x="552" y="59" fill="#0f766e" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="13" font-weight="700">Summarize</text>
+  <text x="656" y="59" fill="#64748b" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="13" font-weight="600">RAG Q&amp;A</text>
+  <text x="750" y="59" fill="#64748b" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="13" font-weight="600">History</text>
 
-  <rect x="72" y="137" width="704" height="500" rx="10" fill="#FFFFFF" stroke="#E7E5E4"/>
-  <text x="104" y="176" fill="#0F766E" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="900">LANGCHAIN + RAG + MONGODB</text>
-  <text x="104" y="220" fill="#1C1917" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="42" font-weight="800">Text Summarizer</text>
-  <rect x="562" y="164" width="92" height="34" rx="17" fill="#EEF7F2" stroke="#CCFBF1"/>
-  <text x="588" y="186" fill="#134E4A" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="800">310 words</text>
-  <rect x="662" y="164" width="82" height="34" rx="17" fill="#EEF7F2" stroke="#CCFBF1"/>
-  <text x="687" y="186" fill="#134E4A" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="800">1,842 chars</text>
-  <rect x="104" y="246" width="640" height="48" rx="8" fill="#FAFAF9" stroke="#D6D3D1"/>
-  <text x="124" y="276" fill="#78716C" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="15">Quarterly research notes</text>
-  <rect x="104" y="324" width="640" height="210" rx="8" fill="#FAFAF9" stroke="#D6D3D1"/>
-  <rect x="124" y="348" width="452" height="12" rx="6" fill="#D6D3D1"/>
-  <rect x="124" y="376" width="570" height="12" rx="6" fill="#E7E5E4"/>
-  <rect x="124" y="404" width="518" height="12" rx="6" fill="#E7E5E4"/>
-  <rect x="124" y="432" width="590" height="12" rx="6" fill="#E7E5E4"/>
-  <rect x="124" y="460" width="408" height="12" rx="6" fill="#E7E5E4"/>
-  <rect x="104" y="558" width="640" height="52" rx="8" fill="#134E4A"/>
-  <text x="347" y="591" fill="#FFFFFF" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="17" font-weight="850">Summarize and store</text>
+  <!-- Navbar Right Actions -->
+  <rect x="860" y="37" width="102" height="34" rx="17" fill="rgba(13, 148, 136, 0.08)" stroke="rgba(13, 148, 136, 0.15)"/>
+  <circle cx="875" cy="54" r="3.5" fill="#0d9488"/>
+  <text x="888" y="59" fill="#0f766e" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="12" font-weight="700">Uploader</text>
 
-  <rect x="808" y="137" width="400" height="220" rx="10" fill="#FFFFFF" stroke="#E7E5E4"/>
-  <text x="840" y="178" fill="#1C1917" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="19" font-weight="900">Summary</text>
-  <rect x="840" y="204" width="336" height="118" rx="8" fill="#FAFAF9" stroke="#E7E5E4"/>
-  <rect x="860" y="226" width="248" height="10" rx="5" fill="#99F6E4"/>
-  <rect x="860" y="252" width="278" height="10" rx="5" fill="#D6D3D1"/>
-  <rect x="860" y="278" width="218" height="10" rx="5" fill="#D6D3D1"/>
+  <rect x="974" y="37" width="46" height="34" rx="17" fill="#ffffff" stroke="rgba(15, 118, 110, 0.08)"/>
+  <path d="M997 46C992.58 46 989 49.58 989 54C989 58.42 992.58 62 997 62C1001.42 62 1005 58.42 1005 54C1005 49.58 1001.42 46 997 46ZM997 60C993.69 60 991 57.31 991 54C991 50.69 993.69 48 997 48C1000.31 48 1003 50.69 1003 54C1003 57.31 1000.31 60 997 60Z" fill="#172554"/>
+  <path d="M997 50V54L1000 56" stroke="#172554" stroke-width="1.5" stroke-linecap="round"/>
 
-  <rect x="808" y="381" width="400" height="190" rx="10" fill="#FFFFFF" stroke="#E7E5E4"/>
-  <text x="840" y="422" fill="#1C1917" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="19" font-weight="900">Ask With RAG</text>
-  <rect x="840" y="448" width="246" height="44" rx="8" fill="#FAFAF9" stroke="#D6D3D1"/>
-  <text x="858" y="476" fill="#78716C" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14">Ask about this document</text>
-  <rect x="1096" y="448" width="80" height="44" rx="8" fill="#292524"/>
-  <text x="1125" y="476" fill="#FFFFFF" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="850">Ask</text>
-  <rect x="840" y="514" width="336" height="26" rx="6" fill="#F5F5F4"/>
-  <text x="858" y="532" fill="#57534E" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12">Chunk 2 | score 0.8421</text>
+  <!-- Main Left Card: Summarizer Panel (Glassmorphic) -->
+  <rect x="52" y="108" width="716" height="500" rx="20" fill="rgba(255, 255, 255, 0.72)" stroke="rgba(15, 118, 110, 0.08)" stroke-width="1" style="backdrop-filter: blur(16px);"/>
+  
+  <text x="84" y="146" fill="#0d9488" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="12" font-weight="800" letter-spacing="0.05em">LANGCHAIN + RAG + MONGODB</text>
+  <text x="84" y="188" fill="#172554" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="36" font-weight="800">Text Summarizer</text>
+  
+  <!-- Word/Char Badges -->
+  <rect x="510" y="132" width="102" height="28" rx="14" fill="rgba(13, 148, 136, 0.08)" stroke="rgba(13, 148, 136, 0.16)"/>
+  <text x="528" y="150" fill="#0f766e" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="12" font-weight="700">📄 310 words</text>
+  <rect x="620" y="132" width="116" height="28" rx="14" fill="rgba(13, 148, 136, 0.08)" stroke="rgba(13, 148, 136, 0.16)"/>
+  <text x="638" y="150" fill="#0f766e" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="12" font-weight="700">📖 1,842 chars</text>
 
-  <rect x="72" y="662" width="1136" height="42" rx="10" fill="#FAFAF9" stroke="#E7E5E4"/>
-  <text x="104" y="689" fill="#1C1917" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16" font-weight="900">Stored summaries</text>
-  <rect x="268" y="674" width="154" height="16" rx="8" fill="#CCFBF1"/>
-  <rect x="442" y="674" width="128" height="16" rx="8" fill="#E7E5E4"/>
-  <rect x="590" y="674" width="176" height="16" rx="8" fill="#E7E5E4"/>
+  <!-- Form Fields -->
+  <text x="84" y="222" fill="#172554" opacity="0.8" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="13" font-weight="700">Title</text>
+  <rect x="84" y="232" width="652" height="42" rx="12" fill="#ffffff" stroke="rgba(15, 118, 110, 0.15)"/>
+  <text x="100" y="258" fill="#172554" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="14">Quarterly market research notes</text>
+
+  <!-- Upload Container (Premium check badge) -->
+  <rect x="84" y="286" width="260" height="42" rx="14" fill="url(#uploadBtn)" stroke="rgba(13, 148, 136, 0.2)" stroke-width="1"/>
+  <path d="M102 307V298M102 298L99 301M102 298L105 301M96 307H108" stroke="#0f766e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="118" y="312" fill="#0f766e" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="13" font-weight="700">Upload Document (.txt, .pdf, ...)</text>
+
+  <rect x="356" y="286" width="168" height="42" rx="12" fill="rgba(13, 148, 136, 0.08)" stroke="rgba(13, 148, 136, 0.15)"/>
+  <circle cx="374" cy="307" r="8" fill="#10b981"/>
+  <path d="M370 307L373 310L378 304" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="388" y="312" fill="#0f766e" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="12" font-weight="700">dummy.pdf</text>
+
+  <!-- Source Text Area -->
+  <text x="84" y="348" fill="#172554" opacity="0.8" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="13" font-weight="700">Source text</text>
+  <rect x="84" y="358" width="652" height="154" rx="12" fill="#ffffff" stroke="rgba(15, 118, 110, 0.15)"/>
+  <rect x="102" y="378" width="550" height="10" rx="5" fill="#f1f5f9"/>
+  <rect x="102" y="402" width="600" height="10" rx="5" fill="#f1f5f9"/>
+  <rect x="102" y="426" width="500" height="10" rx="5" fill="#f1f5f9"/>
+  <rect x="102" y="450" width="580" height="10" rx="5" fill="#f1f5f9"/>
+  <rect x="102" y="474" width="420" height="10" rx="5" fill="#f1f5f9"/>
+  
+  <!-- Custom Scrollbar -->
+  <rect x="724" y="364" width="4" height="142" rx="2" fill="rgba(13, 148, 136, 0.05)"/>
+  <rect x="724" y="380" width="4" height="50" rx="2" fill="rgba(13, 148, 136, 0.2)"/>
+
+  <!-- Optional focus & Summary style Side-by-Side -->
+  <text x="84" y="534" fill="#172554" opacity="0.8" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="13" font-weight="700">Optional focus</text>
+  <rect x="84" y="544" width="432" height="42" rx="12" fill="#ffffff" stroke="rgba(15, 118, 110, 0.15)"/>
+  <text x="100" y="570" fill="#94a3b8" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="14">Focus on risks or tasks...</text>
+
+  <text x="532" y="534" fill="#172554" opacity="0.8" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="13" font-weight="700">Summary style</text>
+  <rect x="532" y="544" width="204" height="42" rx="12" fill="#ffffff" stroke="rgba(15, 118, 110, 0.15)"/>
+  <text x="548" y="570" fill="#172554" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="14" font-weight="700">Detailed</text>
+
+  <!-- Submit Button (Glow gradient) -->
+  <rect x="52" y="630" width="716" height="52" rx="14" fill="url(#primaryBtn)"/>
+  <path d="M336 656L338.5 650L341 656L347 658.5L341 661L338.5 667L336 661L330 658.5L336 656Z" fill="#ffffff"/>
+  <text x="358" y="662" fill="#ffffff" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="15" font-weight="800">Summarize and store</text>
+
+  <!-- Right Section Card 1: Summary Output -->
+  <rect x="792" y="108" width="436" height="236" rx="20" fill="rgba(255, 255, 255, 0.72)" stroke="rgba(15, 118, 110, 0.08)" stroke-width="1" style="backdrop-filter: blur(16px);"/>
+  <path d="M822 135L824.5 129L827 135L833 137.5L827 140L824.5 146L822 140L816 137.5L822 135Z" fill="#0d9488"/>
+  <text x="844" y="141" fill="#172554" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="16" font-weight="800">Summary</text>
+  
+  <rect x="820" y="160" width="380" height="154" rx="16" fill="rgba(248, 250, 252, 0.6)" stroke="rgba(15, 118, 110, 0.08)"/>
+  <rect x="836" y="180" width="310" height="8" rx="4" fill="#a5f3fc"/>
+  <rect x="836" y="202" width="340" height="8" rx="4" fill="#cbd5e1"/>
+  <rect x="836" y="224" width="280" height="8" rx="4" fill="#cbd5e1"/>
+  <rect x="836" y="246" width="320" height="8" rx="4" fill="#cbd5e1"/>
+  
+  <!-- Custom Scrollbar -->
+  <rect x="1192" y="166" width="4" height="142" rx="2" fill="rgba(13, 148, 136, 0.05)"/>
+  <rect x="1192" y="172" width="4" height="40" rx="2" fill="rgba(13, 148, 136, 0.2)"/>
+
+  <!-- Right Section Card 2: RAG Ask Panel -->
+  <rect x="792" y="360" width="436" height="236" rx="20" fill="rgba(255, 255, 255, 0.72)" stroke="rgba(15, 118, 110, 0.08)" stroke-width="1" style="backdrop-filter: blur(16px);"/>
+  <path d="M818 392C818 385.37 823.37 380 830 380C836.63 380 842 385.37 842 392C842 398.63 836.63 404 830 404C823.37 404 818 398.63 818 392Z" fill="rgba(13, 148, 136, 0.08)" stroke="#0d9488" stroke-width="1"/>
+  <text x="846" y="392" fill="#172554" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="16" font-weight="800">Ask With RAG</text>
+
+  <!-- Ask Box Input & Button -->
+  <rect x="820" y="412" width="94" height="34" rx="10" fill="#ffffff" stroke="rgba(15, 118, 110, 0.15)"/>
+  <text x="832" y="433" fill="#172554" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="12" font-weight="700">Active Doc</text>
+  <rect x="922" y="412" width="210" height="34" rx="10" fill="#ffffff" stroke="rgba(15, 118, 110, 0.15)"/>
+  <text x="934" y="433" fill="#94a3b8" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="12">Ask follow-up query...</text>
+  <rect x="1140" y="412" width="60" height="34" rx="10" fill="#172554"/>
+  <text x="1158" y="433" fill="#ffffff" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="12" font-weight="800">Ask</text>
+
+  <!-- Chat container output -->
+  <rect x="820" y="458" width="380" height="88" rx="12" fill="rgba(248, 250, 252, 0.6)" stroke="rgba(15, 118, 110, 0.08)"/>
+  <rect x="832" y="472" width="310" height="6" rx="3" fill="#cbd5e1"/>
+  <rect x="832" y="488" width="340" height="6" rx="3" fill="#cbd5e1"/>
+  <rect x="832" y="504" width="220" height="6" rx="3" fill="#cbd5e1"/>
+  
+  <!-- Source Reference Pill -->
+  <rect x="820" y="556" width="380" height="26" rx="8" fill="rgba(13, 148, 136, 0.05)" stroke="rgba(13, 148, 136, 0.1)"/>
+  <text x="832" y="572" fill="#0f766e" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="11" font-weight="700">🔍 Sources: dummy.pdf (Chunk 1 | score 0.8972)</text>
+
+  <!-- Stored summaries drawer (Bottom pane) -->
+  <rect x="52" y="694" width="1176" height="54" rx="16" fill="rgba(255, 255, 255, 0.72)" stroke="rgba(15, 118, 110, 0.08)" stroke-width="1" style="backdrop-filter: blur(16px);"/>
+  <text x="84" y="726" fill="#172554" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="14" font-weight="800">Stored summaries</text>
+  
+  <rect x="238" y="705" width="210" height="32" rx="10" fill="rgba(13, 148, 136, 0.08)" stroke="rgba(13, 148, 136, 0.16)"/>
+  <text x="254" y="725" fill="#0f766e" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="12" font-weight="700">Quarterly market research</text>
+  
+  <rect x="460" y="705" width="154" height="32" rx="10" fill="#ffffff" stroke="rgba(15, 118, 110, 0.1)"/>
+  <text x="476" y="725" fill="#64748b" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="12" font-weight="700">Meeting Notes</text>
+  
+  <rect x="626" y="705" width="180" height="32" rx="10" fill="#ffffff" stroke="rgba(15, 118, 110, 0.1)"/>
+  <text x="642" y="725" fill="#64748b" font-family="Plus Jakarta Sans, Segoe UI, system-ui, sans-serif" font-size="12" font-weight="700">Research Material</text>
 </svg>
