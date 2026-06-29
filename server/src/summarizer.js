@@ -6,6 +6,7 @@ import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { ObjectId } from "mongodb";
 import { getDatabase } from "./config/db.js";
 import { cosineSimilarity } from "./vector.js";
+import { GROK_API_KEY } from "./config/env.js";
 
 const splitter = new RecursiveCharacterTextSplitter({
   chunkSize: 1200,
@@ -44,7 +45,133 @@ function getEmbeddings() {
   });
 }
 
-function buildPrompt({ mode, question, context, text }) {
+class GrokClient {
+  constructor(apiKey) {
+    this.apiKey = apiKey;
+    this.model = "grok-2-1212";
+  }
+
+  async invoke(prompt) {
+    const messages = prompt.map(p => ({
+      role: p.role,
+      content: p.content
+    }));
+
+    const response = await fetch("https://api.x.ai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${this.apiKey}`
+      },
+      body: JSON.stringify({
+        model: this.model,
+        messages,
+        temperature: 0.2
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Grok API error: ${await response.text()}`);
+    }
+
+    const data = await response.json();
+    const content = data.choices[0]?.message?.content || "";
+    return {
+      content,
+      toString() { return content; }
+    };
+  }
+
+  async *stream(prompt) {
+    const messages = prompt.map(p => ({
+      role: p.role,
+      content: p.content
+    }));
+
+    const response = await fetch("https://api.x.ai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${this.apiKey}`
+      },
+      body: JSON.stringify({
+        model: this.model,
+        messages,
+        temperature: 0.2,
+        stream: true
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Grok stream error: ${await response.text()}`);
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let buffer = "";
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        
+        const lines = buffer.split("\n");
+        buffer = lines.pop();
+
+        for (const line of lines) {
+          const cleanLine = line.trim();
+          if (!cleanLine || cleanLine === "data: [DONE]") continue;
+          if (cleanLine.startsWith("data: ")) {
+            try {
+              const parsed = JSON.parse(cleanLine.slice(6));
+              const content = parsed.choices[0]?.delta?.content || "";
+              if (content) {
+                yield {
+                  content,
+                  toString() { return content; }
+                };
+              }
+            } catch (err) {
+              // ignore JSON parse error
+            }
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+  }
+}
+
+async function callLLM(method, prompt) {
+  try {
+    const model = getModel();
+    if (method === "stream") {
+      return await model.stream(prompt);
+    } else {
+      return await model.invoke(prompt);
+    }
+  } catch (error) {
+    console.error("Gemini LLM call failed, attempting fallback to Grok:", error.message);
+    if (GROK_API_KEY) {
+      try {
+        const grok = new GrokClient(GROK_API_KEY);
+        if (method === "stream") {
+          return grok.stream(prompt);
+        } else {
+          return await grok.invoke(prompt);
+        }
+      } catch (grokError) {
+        console.error("Grok fallback also failed:", grokError.message);
+        throw error;
+      }
+    }
+    throw error;
+  }
+}
+
+function buildPrompt({ mode, question, context, text, language = "english" }) {
   const style =
     mode === "bullets"
       ? "Return crisp bullet points with the most important facts."
@@ -56,11 +183,16 @@ function buildPrompt({ mode, question, context, text }) {
     ? `Answer this user focus while summarizing: ${question.trim()}`
     : "Summarize the document faithfully.";
 
+  const langInstruction =
+    language.toLowerCase() === "hindi"
+      ? "You MUST write the entire summary in Hindi (हिंदी)."
+      : "You MUST write the entire summary in English.";
+
   return [
     {
       role: "system",
       content:
-        "You are a careful text summarizer. Use only the supplied text and retrieved context. Do not invent facts.",
+        `You are a careful text summarizer. Use only the supplied text and retrieved context. Do not invent facts. ${langInstruction}`,
     },
     {
       role: "user",
@@ -69,7 +201,7 @@ function buildPrompt({ mode, question, context, text }) {
   ];
 }
 
-export async function summarizeAndStore({ title, text, question, mode }, userId) {
+export async function summarizeAndStore({ title, text, question, mode, language = "english" }, userId) {
   const db = getDatabase();
   const model = getModel();
   const embeddings = getEmbeddings();
@@ -85,6 +217,7 @@ export async function summarizeAndStore({ title, text, question, mode }, userId)
     text: cleanText,
     question: question?.trim() || "",
     mode,
+    language,
     createdAt: new Date(),
   });
 
@@ -102,8 +235,9 @@ export async function summarizeAndStore({ title, text, question, mode }, userId)
   }
 
   const context = chunks.slice(0, 5).join("\n\n---\n\n");
-  const response = await model.invoke(
-    buildPrompt({ mode, question, context, text: cleanText.slice(0, 12000) }),
+  const response = await callLLM(
+    "invoke",
+    buildPrompt({ mode, question, context, text: cleanText.slice(0, 12000), language }),
   );
 
   const summary = response.content.toString();
@@ -258,7 +392,7 @@ export async function askDocument({ documentId, question }, userId) {
     content: `Retrieved context:\n${context}\n\nQuestion: ${question}`,
   });
 
-  const response = await model.invoke(messages);
+  const response = await callLLM("invoke", messages);
   const answer = response.content.toString();
 
   // If a specific document is active, save message pair to history
@@ -339,7 +473,7 @@ export async function deleteDocument(id, userId) {
   return { ok: true };
 }
 
-export async function summarizeAndStoreStream({ title, text, question, mode }, res, userId) {
+export async function summarizeAndStoreStream({ title, text, question, mode, language = "english" }, res, userId) {
   const db = getDatabase();
   const model = getModel();
   const embeddings = getEmbeddings();
@@ -355,6 +489,7 @@ export async function summarizeAndStoreStream({ title, text, question, mode }, r
     text: cleanText,
     question: question?.trim() || "",
     mode,
+    language,
     createdAt: new Date(),
   });
 
@@ -375,9 +510,9 @@ export async function summarizeAndStoreStream({ title, text, question, mode }, r
   res.write(`data: ${JSON.stringify({ id: documentResult.insertedId.toString(), title: cleanTitle, chunkCount: chunkDocs.length })}\n\n`);
 
   const context = chunks.slice(0, 5).join("\n\n---\n\n");
-  const prompt = buildPrompt({ mode, question, context, text: cleanText.slice(0, 12000) });
+  const prompt = buildPrompt({ mode, question, context, text: cleanText.slice(0, 12000), language });
   
-  const stream = await model.stream(prompt);
+  const stream = await callLLM("stream", prompt);
   let summaryBuffer = "";
 
   for await (const chunk of stream) {
@@ -541,7 +676,7 @@ export async function askDocumentStream({ documentId, question }, res, userId) {
     content: `Retrieved context:\n${context}\n\nQuestion: ${question}`,
   });
 
-  const stream = await model.stream(messages);
+  const stream = await callLLM("stream", messages);
   let answerBuffer = "";
 
   for await (const chunk of stream) {

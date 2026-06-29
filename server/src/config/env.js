@@ -14,3 +14,4 @@ export const MONGODB_DB = process.env.MONGODB_DB || "aht_summarizer";
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 export const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.5-flash";
 export const GEMINI_EMBEDDING_MODEL = process.env.GEMINI_EMBEDDING_MODEL || "gemini-embedding-001";
+export const GROK_API_KEY = process.env.GROK_API_KEY;

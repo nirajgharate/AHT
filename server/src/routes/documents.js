@@ -5,6 +5,7 @@ import {
   deleteDocumentRoute,
   summarize,
   summarizeStream,
+  extractYoutubeTranscript,
 } from "../controllers/documentController.js";
 import { requireAuth } from "../middleware/auth.js";
 import { upload } from "../middleware/upload.js";
@@ -12,6 +13,7 @@ import { upload } from "../middleware/upload.js";
 const router = Router();
 
 router.post("/extract-text", requireAuth, upload.single("file"), extractText);
+router.post("/youtube/transcript", requireAuth, extractYoutubeTranscript);
 router.get("/documents", requireAuth, getDocuments);
 router.delete("/documents/:id", requireAuth, deleteDocumentRoute);
 router.post("/summarize", requireAuth, summarize);

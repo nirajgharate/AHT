@@ -3,13 +3,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Menu, Moon, Sparkles, Sun, X, LogOut } from "lucide-react";
 
 const navLinks = [
-  { title: "Summarize", href: "#summarize" },
-  { title: "RAG Q&A", href: "#rag" },
-  { title: "History", href: "#history" },
+  { title: "Text Summarizer", type: "tab", value: "text", href: "#summarize" },
+  { title: "YouTube Summarizer", type: "tab", value: "youtube", href: "#summarize" },
+  { title: "RAG Q&A", type: "scroll", href: "#rag" },
+  { title: "History", type: "scroll", href: "#history" },
 ];
 
 
-export default function Navbar({ apiStatus = "checking", theme = "light", onToggleTheme, userEmail, onLogout }) {
+export default function Navbar({ apiStatus = "checking", theme = "light", onToggleTheme, userEmail, isAuthenticated, onLogout, activeTab, setActiveTab }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hoveredLink, setHoveredLink] = useState(null);
@@ -69,18 +70,23 @@ export default function Navbar({ apiStatus = "checking", theme = "light", onTogg
               <a
                 key={link.title}
                 href={link.href}
+                onClick={() => {
+                  if (link.type === "tab") {
+                    setActiveTab(link.value);
+                  }
+                }}
                 className="nav-link relative px-4 py-2 text-sm font-semibold transition-colors"
                 onMouseEnter={() => setHoveredLink(link.title)}
                 onMouseLeave={() => setHoveredLink(null)}
               >
-                {hoveredLink === link.title && (
+                {(hoveredLink === link.title || (link.type === "tab" && activeTab === link.value)) && (
                   <motion.span
                     layoutId="nav-hover-pill"
                     className="absolute inset-0 -z-10 rounded-full bg-[var(--accent-soft)]"
                     transition={{ type: "spring", stiffness: 350, damping: 25 }}
                   />
                 )}
-                <span className={hoveredLink === link.title ? "text-[var(--accent-strong)]" : "text-[var(--subtle)]"}>
+                <span className={(hoveredLink === link.title || (link.type === "tab" && activeTab === link.value)) ? "text-[var(--accent-strong)]" : "text-[var(--subtle)]"}>
                   {link.title}
                 </span>
               </a>
@@ -98,7 +104,7 @@ export default function Navbar({ apiStatus = "checking", theme = "light", onTogg
               </div>
             )}
             
-            {userEmail && (
+            {isAuthenticated && (
               <button
                 onClick={onLogout}
                 className="theme-toggle flex items-center gap-1 hover:bg-[var(--danger-bg)] hover:text-[var(--danger-text)] hover:border-[var(--danger-border)] cursor-pointer"
@@ -177,11 +183,16 @@ export default function Navbar({ apiStatus = "checking", theme = "light", onTogg
                 <motion.a
                   key={link.title}
                   href={link.href}
-                  onClick={closeMobileMenu}
+                  onClick={() => {
+                    if (link.type === "tab") {
+                      setActiveTab(link.value);
+                    }
+                    closeMobileMenu();
+                  }}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.08, duration: 0.35, ease: "easeOut" }}
-                  className="mobile-nav-link border-b border-[var(--panel-border)] pb-4 text-2xl font-bold text-[var(--text)] hover:text-[var(--accent)]"
+                  className={`mobile-nav-link border-b border-[var(--panel-border)] pb-4 text-2xl font-bold hover:text-[var(--accent)] ${(link.type === "tab" && activeTab === link.value) ? "text-[var(--accent-strong)]" : "text-[var(--text)]"}`}
                 >
                   {link.title}
                 </motion.a>
@@ -194,11 +205,13 @@ export default function Navbar({ apiStatus = "checking", theme = "light", onTogg
               transition={{ delay: 0.3, duration: 0.35 }}
               className="mt-auto mb-12 flex flex-col gap-4"
             >
-              {userEmail && (
+              {isAuthenticated && (
                 <div className="flex flex-col gap-2 p-4 bg-[var(--accent-soft)] rounded-2xl border border-[var(--panel-border)]">
-                  <span className="text-xs font-semibold text-[var(--accent-strong)] text-center">
-                    Signed in as {userEmail}
-                  </span>
+                  {userEmail && (
+                    <span className="text-xs font-semibold text-[var(--accent-strong)] text-center">
+                      Signed in as {userEmail}
+                    </span>
+                  )}
                   <button
                     onClick={() => {
                       closeMobileMenu();

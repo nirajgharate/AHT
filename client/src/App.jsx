@@ -2,18 +2,23 @@ import { useEffect, useMemo, useState } from 'react'
 import Navbar from './components/Navbar'
 import AuthPage from './pages/AuthPage'
 import Dashboard from './pages/Dashboard'
+import { login, register } from './services/auth'
+import { fetchDocuments, deleteDocument, extractTextFromFile, summarizeStream } from './services/documents'
+import { askStream } from './services/rag'
+import { checkHealth } from './services/health'
 import './App.css'
 
 const sampleText =
   'Paste a report, article, transcript, meeting notes, or research material here. The app will split the text into retrieval chunks, generate embeddings with LangChain, store the document and chunks in MongoDB, and produce a grounded summary.'
-
 function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light')
+  const [activeTab, setActiveTab] = useState('text')
   const [title, setTitle] = useState('')
   const [text, setText] = useState('')
   const [question, setQuestion] = useState('')
   const [mode, setMode] = useState('detailed')
   const [summary, setSummary] = useState('')
+  const [language, setLanguage] = useState('english')
   const [activeDocumentId, setActiveDocumentId] = useState('')
   const [documents, setDocuments] = useState([])
   const [askText, setAskText] = useState('')
@@ -45,41 +50,53 @@ function App() {
     localStorage.setItem('theme', theme)
   }, [theme])
 
+  // Reset inputs when switching between tabs (Text vs YouTube)
+  useEffect(() => {
+    setTitle('')
+    setText('')
+    setQuestion('')
+    setSummary('')
+    setActiveDocumentId('')
+    setChatHistory([])
+    setAnswer('')
+    setSources([])
+    setError('')
+    setUploadFilename('')
+    setLanguage('english')
+  }, [activeTab])
+
   function toggleTheme() {
     setTheme((currentTheme) => (currentTheme === 'dark' ? 'light' : 'dark'))
   }
 
   async function loadDocuments() {
     if (!token) return
-    const response = await fetch('/api/documents', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    if (!response.ok) return
-    const data = await response.json()
-    setDocuments(data.documents || [])
+    try {
+      const data = await fetchDocuments()
+      setDocuments(data.documents || [])
+    } catch (err) {
+      console.error(err.message)
+    }
   }
 
   useEffect(() => {
     let shouldUpdate = true
     if (!token) return
 
-    fetch('/api/health')
-      .then((response) => {
-        if (shouldUpdate) setApiStatus(response.ok ? 'online' : 'offline')
+    checkHealth()
+      .then(() => {
+        if (shouldUpdate) setApiStatus('online')
       })
       .catch(() => {
         if (shouldUpdate) setApiStatus('offline')
       })
 
-    fetch('/api/documents', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then((response) => {
-        if (shouldUpdate && response.ok) setApiStatus('online')
-        return response.ok ? response.json() : { documents: [] }
-      })
+    fetchDocuments()
       .then((data) => {
-        if (shouldUpdate) setDocuments(data.documents || [])
+        if (shouldUpdate) {
+          setApiStatus('online')
+          setDocuments(data.documents || [])
+        }
       })
       .catch(() => {
         if (shouldUpdate) setDocuments([])
@@ -95,16 +112,10 @@ function App() {
     setLoading(true)
     setAuthError('')
 
-    const endpoint = authMode === 'login' ? '/api/auth/login' : '/api/auth/register'
-
     try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: authEmail, password: authPassword }),
-      })
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.message || 'Authentication failed.')
+      const data = authMode === 'login'
+        ? await login(authEmail, authPassword)
+        : await register(authEmail, authPassword)
 
       localStorage.setItem('token', data.token)
       localStorage.setItem('userEmail', data.email)
@@ -135,7 +146,11 @@ function App() {
   }
 
   async function readStream(response, onChunk, onMetadata, onSources, onHistory) {
-    const reader = response.body.getReader()
+    const stream = response.body || response.data
+    if (!stream) {
+      throw new Error('Response stream is not readable')
+    }
+    const reader = stream.getReader()
     const decoder = new TextDecoder('utf-8')
     let buffer = ''
 
@@ -182,29 +197,20 @@ function App() {
     }
   }
 
-  async function handleSummarize(event) {
-    event.preventDefault()
+  async function handleSummarize(event, overrides = {}) {
+    if (event) event.preventDefault()
     setLoading(true)
     setError('')
     setSummary('')
     setAnswer('')
     setSources([])
 
-    try {
-      const response = await fetch('/api/summarize/stream', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ title, text, question, mode }),
-      })
-      
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}))
-        throw new Error(data.message || 'Unable to summarize text.')
-      }
+    const finalTitle = overrides.title !== undefined ? overrides.title : title
+    const finalText = overrides.text !== undefined ? overrides.text : text
 
+    try {
+      const response = await summarizeStream({ title: finalTitle, text: finalText, question, mode, language })
+      
       await readStream(
         response,
         (chunk) => {
@@ -245,19 +251,7 @@ function App() {
     }
 
     try {
-      const response = await fetch('/api/ask/stream', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ documentId: docId, question: userQuestion }),
-      })
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}))
-        throw new Error(data.message || 'Unable to answer the question.')
-      }
+      const response = await askStream({ documentId: docId, question: userQuestion })
 
       let accumulatedAnswer = ''
       await readStream(
@@ -314,13 +308,7 @@ function App() {
     formData.append('file', file)
 
     try {
-      const response = await fetch('/api/extract-text', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      })
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.message || 'Failed to extract text.')
+      const data = await extractTextFromFile(file)
       
       setText(data.text || '')
       if (data.title) {
@@ -367,13 +355,7 @@ function App() {
     formData.append('file', file)
 
     try {
-      const response = await fetch('/api/extract-text', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      })
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.message || 'Failed to extract text.')
+      const data = await extractTextFromFile(file)
 
       setText(data.text || '')
       if (data.title) {
@@ -392,12 +374,7 @@ function App() {
     if (!window.confirm('Are you sure you want to delete this document and all its chunks?')) return
 
     try {
-      const response = await fetch(`/api/documents/${docId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.message || 'Unable to delete document.')
+      await deleteDocument(docId)
 
       if (activeDocumentId === docId) {
         setActiveDocumentId('')
@@ -451,9 +428,17 @@ function App() {
         theme={theme}
         onToggleTheme={toggleTheme}
         userEmail={userEmail}
+        isAuthenticated={!!token}
         onLogout={handleLogout}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
       />
       <Dashboard
+        activeTab={activeTab}
+        token={token}
+        setError={setError}
+        language={language}
+        setLanguage={setLanguage}
         title={title}
         setTitle={setTitle}
         text={text}

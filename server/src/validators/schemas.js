@@ -10,6 +10,7 @@ export const summarizeSchema = z.object({
   text: z.string().trim().min(100, "Paste at least 100 characters to summarize."),
   question: z.string().max(500).optional(),
   mode: z.enum(["detailed", "brief", "bullets"]).default("detailed"),
+  language: z.string().optional(),
 });
 
 export const askSchema = z.object({

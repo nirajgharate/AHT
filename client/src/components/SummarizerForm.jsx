@@ -12,6 +12,8 @@ export default function SummarizerForm({
   setQuestion,
   mode,
   setMode,
+  language,
+  setLanguage,
   handleSummarize,
   uploading,
   uploadFilename,
@@ -99,7 +101,7 @@ export default function SummarizerForm({
         className="source-textarea"
       />
 
-      <div className="grid grid-cols-[1fr_120px] gap-4 md:grid-cols-[1fr_220px]">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_120px_120px] md:grid-cols-[1fr_180px_180px]">
         <div>
           <label className="field-label" htmlFor="question">
             Optional focus
@@ -125,6 +127,20 @@ export default function SummarizerForm({
             <option value="detailed">Detailed</option>
             <option value="brief">Brief</option>
             <option value="bullets">Bullets</option>
+          </select>
+        </div>
+        <div>
+          <label className="field-label" htmlFor="language">
+            Language
+          </label>
+          <select
+            id="language"
+            value={language}
+            onChange={(event) => setLanguage(event.target.value)}
+            className="text-input"
+          >
+            <option value="english">English</option>
+            <option value="hindi">Hindi</option>
           </select>
         </div>
       </div>
