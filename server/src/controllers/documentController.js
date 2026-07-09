@@ -2,7 +2,6 @@ import path from "node:path";
 import mammoth from "mammoth";
 import { PDFParse } from "pdf-parse";
 import * as pdfjs from "pdfjs-dist/legacy/build/pdf.mjs";
-import { YoutubeTranscript } from "youtube-transcript";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   listDocuments,
@@ -149,8 +148,7 @@ export async function extractYoutubeTranscript(req, res, next) {
     let text = "";
     let transcriptError = false;
     try {
-      const transcript = await YoutubeTranscript.fetchTranscript(videoId);
-      text = transcript.map((segment) => segment.text).join(" ");
+      text = await fetchTranscript(videoId);
     } catch (transcriptErrorDetail) {
       console.warn("Failed to fetch transcript, falling back to empty text:", transcriptErrorDetail.message);
       transcriptError = true;
@@ -160,4 +158,96 @@ export async function extractYoutubeTranscript(req, res, next) {
   } catch (error) {
     next(error);
   }
+}
+
+async function fetchTranscript(videoId) {
+  // 1. Try InnerTube API first (fast and lightweight)
+  try {
+    const resp = await fetch('https://www.youtube.com/youtubei/v1/player?prettyPrint=false', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'com.google.android.youtube/20.10.38 (Linux; U; Android 14)',
+      },
+      body: JSON.stringify({
+        context: {
+          client: {
+            clientName: 'ANDROID',
+            clientVersion: '20.10.38',
+          },
+        },
+        videoId: videoId,
+      }),
+    });
+
+    if (resp.ok) {
+      const data = await resp.json();
+      const captionTracks = data?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
+      if (Array.isArray(captionTracks) && captionTracks.length > 0) {
+        return await downloadXmlTranscript(captionTracks[0].baseUrl);
+      }
+    }
+  } catch (err) {
+    console.warn("InnerTube API transcript fetch warning:", err.message);
+  }
+
+  // 2. Fallback to HTML watch page scraping
+  try {
+    const resp = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept-Language': 'en-US,en;q=0.9',
+      },
+    });
+
+    if (!resp.ok) {
+      throw new Error(`Failed to load page: status ${resp.status}`);
+    }
+
+    const html = await resp.text();
+    const match = html.match(/"captionTracks":\s*(\[.*?\])/);
+    if (match) {
+      const captionTracks = JSON.parse(match[1]);
+      if (Array.isArray(captionTracks) && captionTracks.length > 0) {
+        return await downloadXmlTranscript(captionTracks[0].baseUrl);
+      }
+    }
+    throw new Error("No caption tracks found in page source.");
+  } catch (err) {
+    console.warn("HTML Page Scraping transcript fetch warning:", err.message);
+  }
+
+  throw new Error("All transcript fetch methods failed.");
+}
+
+async function downloadXmlTranscript(url) {
+  const resp = await fetch(url);
+  if (!resp.ok) {
+    throw new Error(`Failed to download transcript XML: status ${resp.status}`);
+  }
+  const xmlText = await resp.text();
+  
+  // Match both srv1 <text> and srv3 <p> timedtext tags
+  const regex = /<(text|p)[^>]*>([\s\S]*?)<\/\1>/g;
+  let match;
+  const segments = [];
+  while ((match = regex.exec(xmlText)) !== null) {
+    let content = match[2];
+    
+    // Strip any nested formatting tags
+    content = content.replace(/<[^>]+>/g, '');
+
+    const text = content
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&apos;/g, "'");
+      
+    if (text.trim()) {
+      segments.push(text.trim());
+    }
+  }
+  return segments.join(" ");
 }
