@@ -9,9 +9,22 @@ import ragRoutes from "./routes/rag.js";
 
 const app = express();
 
+const allowedOrigins = [
+  "https://aht-one.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175",
+  "http://localhost:5176",
+];
+
+if (CLIENT_ORIGIN && !allowedOrigins.includes(CLIENT_ORIGIN)) {
+  allowedOrigins.push(CLIENT_ORIGIN);
+}
+
 app.use(
   cors({
-    origin: "https://aht-one.vercel.app" || "http://localhost:5173",
+    origin: allowedOrigins,
+    credentials: true,
   }),
 );
 app.use(express.json({ limit: "5mb" }));

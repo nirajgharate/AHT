@@ -1,7 +1,12 @@
 import axios from 'axios';
 
+export const API_BASE_URL =
+  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000/api'
+    : 'https://aht-rk52.onrender.com/api';
+
 export const apiClient = axios.create({
-  baseURL: 'https://aht-rk52.onrender.com/api',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
