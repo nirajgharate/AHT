@@ -53,12 +53,17 @@ export default function YoutubeSummarizerForm({
       }
       setVideoMeta(meta)
 
-      // If instant summarization is requested, trigger it immediately
-      if (type === 'summarize') {
-        await handleSummarize(null, {
-          title: data.title,
-          text: data.text || '',
-        })
+      if (data.transcriptError) {
+        setError("We couldn't retrieve the transcript automatically. Please edit or paste it below.")
+        setIsEditingText(true)
+      } else {
+        // If instant summarization is requested, trigger it immediately
+        if (type === 'summarize') {
+          await handleSummarize(null, {
+            title: data.title,
+            text: data.text || '',
+          })
+        }
       }
     } catch (err) {
       setError(err.message)

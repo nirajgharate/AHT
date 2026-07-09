@@ -147,17 +147,16 @@ export async function extractYoutubeTranscript(req, res, next) {
     }
 
     let text = "";
+    let transcriptError = false;
     try {
       const transcript = await YoutubeTranscript.fetchTranscript(videoId);
       text = transcript.map((segment) => segment.text).join(" ");
-    } catch (transcriptError) {
-      console.error("Failed to fetch transcript:", transcriptError);
-      return res.status(400).json({
-        message: "Unable to retrieve transcripts for this video. Captions might be disabled or unavailable on this video."
-      });
+    } catch (transcriptErrorDetail) {
+      console.warn("Failed to fetch transcript, falling back to empty text:", transcriptErrorDetail.message);
+      transcriptError = true;
     }
 
-    res.json({ title, text, videoUrl: url, videoId, thumbnail, author });
+    res.json({ title, text, videoUrl: url, videoId, thumbnail, author, transcriptError });
   } catch (error) {
     next(error);
   }
