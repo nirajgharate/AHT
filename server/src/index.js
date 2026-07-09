@@ -11,7 +11,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: CLIENT_ORIGIN || "http://localhost:5173",
+    origin: "https://aht-one.vercel.app" || "http://localhost:5173",
   }),
 );
 app.use(express.json({ limit: "5mb" }));
