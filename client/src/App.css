@@ -173,6 +173,18 @@ body {
   transition: border-color 300ms ease, box-shadow 300ms ease;
 }
 
+@media (max-width: 480px) {
+  .workspace-panel {
+    padding: 16px;
+    border-radius: 16px;
+  }
+  .result-box,
+  .answer-box {
+    padding: 16px;
+    border-radius: 12px;
+  }
+}
+
 @media (min-width: 768px) {
   .workspace-panel {
     padding: 32px;
@@ -632,8 +644,16 @@ body {
 
 .ask-form {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 12px;
   margin-bottom: 12px;
+}
+
+@media (min-width: 640px) {
+  .ask-form {
+    flex-direction: row;
+    gap: 10px;
+  }
 }
 
 .ask-scope-select {
