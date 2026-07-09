@@ -76,6 +76,22 @@ export default function YoutubeSummarizerForm({
     setIsEditingText(false)
   }
 
+  function handleManualFallback() {
+    setError('')
+    const videoId = extractVideoId(videoUrl) || 'dQw4w9WgXcQ'
+    const fallbackMeta = {
+      title: 'Manual Video Transcript',
+      author: 'Unknown Creator',
+      thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+      videoId: videoId,
+      url: videoUrl.trim() || `https://www.youtube.com/watch?v=${videoId}`,
+    }
+    setVideoMeta(fallbackMeta)
+    setTitle('Manual Video Transcript')
+    setText('')
+    setIsEditingText(true)
+  }
+
   return (
     <div className="workspace-panel">
       {/* Panel Header */}
@@ -146,7 +162,19 @@ export default function YoutubeSummarizerForm({
                 {loading ? 'Summarizing...' : 'Summarize Directly'}
               </button>
             </div>
-            {error && <p className="error-box mt-2">{error}</p>}
+            {error && (
+              <div className="flex flex-col gap-2 mt-2">
+                <p className="error-box" style={{ margin: 0 }}>{error}</p>
+                <button
+                  type="button"
+                  onClick={handleManualFallback}
+                  className="secondary-button text-xs py-2 self-start cursor-pointer hover:bg-[var(--accent)] hover:text-white transition-colors"
+                  style={{ borderRadius: '8px', margin: 0, padding: '8px 16px', fontSize: '12px' }}
+                >
+                  Write or paste transcript manually
+                </button>
+              </div>
+            )}
           </form>
         </div>
       ) : (
@@ -303,4 +331,11 @@ export default function YoutubeSummarizerForm({
       )}
     </div>
   )
+}
+
+function extractVideoId(url) {
+  if (!url) return null
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/|live\/)([^#\&\?]*).*/
+  const match = url.match(regExp)
+  return (match && match[2].length === 11) ? match[2] : null
 }
